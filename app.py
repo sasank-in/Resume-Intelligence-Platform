@@ -220,7 +220,8 @@ Generate a detailed analysis with these fields. Let the AI determine all values 
     "key_strengths": "Top 3 professional strengths identified from the resume",
     "improvement_areas": "3 areas for professional development",
     "industry_fit": "Industries and sectors best suited for this candidate",
-    "next_career_moves": "3 recommended next career steps"
+    "next_career_moves": "3 recommended next career steps",
+    "suggested_job_summary": "A concise 3-4 sentence job summary suitable for a job application based on the resume"
 }}
 
 IMPORTANT:
@@ -259,7 +260,8 @@ IMPORTANT:
                 "next_career_moves": "Senior progression or specialization",
                 "competitive_advantage": "Unique background",
                 "interview_talking_points": "Highlight key achievements",
-                "recommendations_summary": "Continue professional development"
+                "recommendations_summary": "Continue professional development",
+                "suggested_job_summary": resume_data.get('summary', 'Professional summary based on resume')
             }
         
         return {

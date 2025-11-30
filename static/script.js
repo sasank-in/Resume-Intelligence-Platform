@@ -283,6 +283,15 @@ function displayAnalysis(analysis) {
     if (analysisGrid.children.length > 0) {
         document.getElementById('analysisSection').style.display = 'block';
     }
+
+    // Suggested Job Summary rendering
+    const suggestedJob = analysis.suggested_job_summary;
+    const suggestedJobSection = document.getElementById('suggestedJobSection');
+    const suggestedJobSummaryEl = document.getElementById('suggestedJobSummary');
+    if (suggestedJob && suggestedJob.trim() && suggestedJob !== '-') {
+        suggestedJobSummaryEl.textContent = suggestedJob;
+        suggestedJobSection.style.display = 'block';
+    }
 }
 
 // Chatbot modal functionality

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Q&A System - AI Powered</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 PDF Question & Answer System</h1>
+            <p class="subtitle">Powered by Google Gemini AI with Contextual Memory</p>
+        </div>
+        
+        <div class="content">
+            <div class="section-title">📤 Upload Document</div>
+            <div class="upload-section">
+                <p style="margin-bottom: 25px; color: #667eea; font-size: 16px; font-weight: 500;">
+                    Select a PDF file to extract and analyze with AI
+                </p>
+                <input type="file" id="pdfFile" accept=".pdf">
+                <button class="upload-btn" onclick="document.getElementById('pdfFile').click()">
+                    📁 Choose PDF File
+                </button>
+                <p id="fileName" class="file-name"></p>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 12px;">Processing document...</p>
+            </div>
+            
+            <div id="status" class="status"></div>
+            
+            <div class="summary-box" id="summaryBox">
+                <h3>✨ Document Summary</h3>
+                <div id="summary"></div>
+            </div>
+            
+            <div class="qa-section" id="qaSection">
+                <div class="section-title">💬 Ask Questions</div>
+                <div class="input-group">
+                    <input type="text" class="question-input" id="questionInput" 
+                           placeholder="Ask anything about your document...">
+                    <button class="ask-btn" onclick="askQuestion()">🚀 Ask</button>
+                </div>
+                
+                <div class="answer-box" id="answerBox">
+                    <h4>💡 Answer</h4>
+                    <div id="answer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/script.js"></script>
+</body>
+</html>

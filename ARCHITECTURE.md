@@ -1,104 +1,261 @@
-# System Architecture
+# Resume Analyzer - Architecture
 
-## Clean & Simple Design
+## System Overview
 
-This is a complete rewrite with a focus on simplicity and reliability.
+A lightweight, AI-powered resume analysis system that extracts structured data from PDFs and provides intelligent candidate assessment.
 
 ## Tech Stack
 
 ### Backend
 - **FastAPI** - Modern Python web framework
 - **PyPDF2** - PDF text extraction
-- **Google Gemini AI** - Question answering and summarization
+- **Google Gemini 1.5 Flash** - AI analysis and extraction
 - **Python-dotenv** - Environment variable management
 
 ### Frontend
-- **Vanilla HTML/CSS/JavaScript** - No frameworks, just clean code
+- **Vanilla HTML/CSS/JavaScript** - No frameworks, clean code
 - **Modern CSS** - Gradients, animations, responsive design
-- **Inter Font** - Clean, professional typography
+- **Inter Font** - Professional typography
 
 ## Architecture Decisions
 
+### Why Structured Data Extraction?
+- **Reliable**: Consistent JSON output from AI
+- **Scalable**: Easy to process and store
+- **Queryable**: Supports future features like filtering and search
+- **Integration-friendly**: Works with ATS systems
+
+### Why Gemini AI?
+- **Powerful**: Understands resume context and terminology
+- **Fast**: 1.5 Flash model is optimized for speed
+- **Affordable**: Free tier sufficient for development
+- **Accurate**: Can extract and assess complex career data
+
 ### Why No Vector Databases?
-- **Simplicity**: No complex setup or dependencies
-- **Reliability**: Fewer moving parts = fewer failures
-- **Cost**: No additional infrastructure needed
-- **Speed**: Direct AI processing is fast enough for most use cases
+- **Simplicity**: Fewer dependencies and moving parts
+- **Speed**: Direct AI processing is fast enough
+- **Cost**: No infrastructure overhead
+- **Maintenance**: Easier to debug and maintain
 
-### Why Contextual Memory Instead of RAG?
-- **Easier to understand**: Simple chat history approach
-- **Good enough**: Works well for most documents
-- **No embeddings needed**: Avoids quota issues
-- **Conversational**: Natural follow-up questions
-
-### How It Works
+## Data Flow
 
 ```
-1. PDF Upload
+1. Resume Upload (PDF)
    ↓
-2. Extract text with page numbers
+2. Text Extraction
+   (PyPDF2 extracts text with page markers)
    ↓
-3. Generate summary (first 15k chars)
+3. Structured Extraction (Gemini AI)
+   - Parse personal information
+   - Extract skills
+   - Identify experience
+   - Extract education
+   - Find certifications
    ↓
-4. Store in session memory
+4. Session Storage
+   (In-memory dictionary per user)
    ↓
-5. User asks question
+5. AI Analysis
+   - Generate assessment
+   - Identify strengths/weaknesses
+   - Suggest improvements
    ↓
-6. Send to Gemini:
-   - Document content (first 10k chars)
-   - Last 3 Q&A pairs
-   - Current question
-   ↓
-7. Get contextual answer
-   ↓
-8. Store in chat history
-   ↓
-9. Repeat from step 5
+6. Display in UI
+   (Formatted resume sections)
+```
+
+## API Endpoints
+
+### GET /
+- **Purpose**: Serve main HTML page
+- **Response**: HTML page with UI
+
+### POST /upload
+- **Input**: PDF file + session_id
+- **Process**: 
+  - Extract text from PDF
+  - Run AI extraction
+  - Structure data
+- **Output**: Structured resume data
+- **Storage**: Saves to session
+
+### POST /get-analysis
+- **Input**: session_id
+- **Process**: 
+  - Retrieve stored resume data
+  - Generate AI analysis
+  - Structure assessment
+- **Output**: Analysis report
+- **Fields**: Score, trajectory, strengths, improvements, industry fit, next steps
+
+## Data Structures
+
+### Session Storage
+```python
+sessions = {
+    "session_id": {
+        "resume_text": "Full PDF content with page markers",
+        "resume_data": {
+            "name": "...",
+            "email": "...",
+            "skills": [...],
+            "experience": [...],
+            "education": [...]
+        }
+    }
+}
+```
+
+### Resume Data Schema
+```json
+{
+  "name": "string",
+  "email": "string",
+  "phone": "string",
+  "location": "string",
+  "headline": "string",
+  "summary": "string",
+  "skills": ["skill1", "skill2", ...],
+  "experience": [
+    {
+      "title": "string",
+      "company": "string",
+      "duration": "string",
+      "highlights": ["achievement1", ...]
+    }
+  ],
+  "education": [
+    {
+      "degree": "string",
+      "institution": "string",
+      "year": "string",
+      "details": "string"
+    }
+  ],
+  "certifications": ["cert1", ...],
+  "languages": ["lang1", ...],
+  "strengths": ["strength1", ...],
+  "recommendations": ["recommendation1", ...]
+}
+```
+
+### Analysis Schema
+```json
+{
+  "overall_score": "8/10 - Strong technical background with leadership experience",
+  "career_trajectory": "Steady growth from junior to senior roles...",
+  "key_strengths": "Excellent problem-solving, team leadership, technical expertise...",
+  "improvement_areas": "Limited international experience, could expand soft skills...",
+  "industry_fit": "Tech, finance, consulting, startups...",
+  "next_steps": "Consider management track or specialized certifications..."
+}
 ```
 
 ## File Structure
 
 ```
 qa-summarizer/
-├── app.py                 # FastAPI web application
+├── app.py                 # FastAPI server + endpoints
 ├── pdf_qa_system.py       # CLI version
 ├── requirements.txt       # Python dependencies
 ├── .env                   # API keys (gitignored)
-├── README.md             # User documentation
+├── README.md             # Documentation
 ├── ARCHITECTURE.md       # This file
 ├── static/
-│   ├── index.html        # Main HTML page
-│   ├── style.css         # All styling
+│   ├── index.html        # Main UI
+│   ├── style.css         # Styling (429+ lines)
 │   └── script.js         # Frontend logic
 └── venv/                 # Virtual environment
 ```
 
+## Frontend Architecture
+
+### HTML Structure
+- Header section with branding
+- Upload section for PDF files
+- Collapsible resume sections:
+  - Candidate profile
+  - Skills grid
+  - Experience timeline
+  - Education cards
+  - AI analysis dashboard
+  - Certifications & languages
+
+### CSS Features
+- Gradient backgrounds
+- Smooth animations
+- Responsive grid layout
+- Timeline visualization for experience
+- Card-based UI for sections
+- Mobile-friendly design
+
+### JavaScript Flow
+1. File selection handler
+2. FormData creation for upload
+3. API call to `/upload`
+4. Resume data parsing and display
+5. Async call to `/get-analysis`
+6. Analysis results rendering
+
+## Processing Flow
+
+### Resume Extraction
+1. PDF uploaded and saved temporarily
+2. PyPDF2 extracts text with page numbers
+3. Gemini AI receives first 12,000 chars
+4. AI returns structured JSON
+5. Data stored in session
+6. Temp file deleted
+
+### Analysis Generation
+1. Retrieve stored resume data
+2. Create Gemini prompt with resume data
+3. AI generates assessment
+4. Parse JSON response
+5. Return to frontend
+6. Display analysis cards
+
 ## Session Management
 
-```python
-sessions = {
-    "session_id": {
-        "pdf_text": "Full PDF content with page markers",
-        "chat_history": [
-            {"question": "...", "answer": "..."},
-            {"question": "...", "answer": "..."}
-        ]
-    }
-}
-```
+- **Session ID**: Generated from timestamp (Date.now())
+- **Storage**: In-memory dictionary (lost on server restart)
+- **Persistence**: Per-user session isolation
+- **Cleanup**: Optional garbage collection on long intervals
 
-## API Endpoints
+## Performance Considerations
 
-### GET /
-Returns the main HTML page
+- **Text Limit**: 12,000 chars for extraction (balance accuracy vs speed)
+- **API Calls**: 2 per resume (upload + analysis)
+- **Response Time**: ~5-10 seconds typical
+- **Memory**: Minimal footprint per session
+- **Concurrency**: Handles multiple users independently
 
-### POST /upload
-- **Input**: PDF file + session_id
-- **Process**: Extract text, generate summary
-- **Output**: Summary + character count
-- **Storage**: Saves to session
+## Security Notes
 
-### POST /ask
+- No authentication (consider adding for production)
+- No file persistence (temp files auto-deleted)
+- API key stored in environment variable
+- CORS not configured (restrict for production)
+- No input validation on file uploads (add in production)
+
+## Future Enhancement Paths
+
+### Phase 2: Storage & Persistence
+- Add database (PostgreSQL) for history
+- User authentication system
+- Resume comparison tools
+
+### Phase 3: Advanced Analytics
+- Batch processing
+- Industry benchmarking
+- Salary insights
+- ATS optimization scoring
+
+### Phase 4: Integration
+- Applicant Tracking System (ATS) connectors
+- Interview prep suggestions
+- Job recommendation engine
+- LinkedIn integration### POST /ask
 - **Input**: Question + session_id
 - **Process**: Build context, query Gemini
 - **Output**: Answer

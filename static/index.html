@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PDF Q&A System - AI Powered</title>
+    <title>Resume Summarizer - AI Powered Candidate Analysis</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
@@ -12,47 +12,146 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 PDF Question & Answer System</h1>
-            <p class="subtitle">Powered by Google Gemini AI with Contextual Memory</p>
+            <h1>📄 Resume Analyzer</h1>
+            <p class="subtitle">AI-Powered Candidate Profile & Assessment</p>
         </div>
         
         <div class="content">
-            <div class="section-title">📤 Upload Document</div>
+            <!-- Upload Section -->
+            <div class="section-title">📤 Upload Resume</div>
             <div class="upload-section">
                 <p style="margin-bottom: 25px; color: #667eea; font-size: 16px; font-weight: 500;">
-                    Select a PDF file to extract and analyze with AI
+                    Upload a PDF resume to get instant AI analysis
                 </p>
-                <input type="file" id="pdfFile" accept=".pdf">
-                <button class="upload-btn" onclick="document.getElementById('pdfFile').click()">
-                    📁 Choose PDF File
+                <input type="file" id="resumeFile" accept=".pdf" hidden>
+                <button class="upload-btn" onclick="document.getElementById('resumeFile').click()">
+                    📁 Choose Resume (PDF)
                 </button>
                 <p id="fileName" class="file-name"></p>
             </div>
             
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p style="margin-top: 12px;">Processing document...</p>
+                <p style="margin-top: 12px;">Analyzing resume...</p>
             </div>
             
             <div id="status" class="status"></div>
             
-            <div class="summary-box" id="summaryBox">
-                <h3>✨ Document Summary</h3>
-                <div id="summary"></div>
+            <!-- Profile Section -->
+            <div class="profile-section" id="profileSection" style="display: none;">
+                <div class="section-title">👤 Candidate Profile</div>
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div>
+                            <h2 id="candidateName">-</h2>
+                            <p class="headline" id="candidateHeadline">-</p>
+                            <p class="location-phone">
+                                <span id="candidateLocation">-</span> | 
+                                <span id="candidateEmail">-</span>
+                            </p>
+                        </div>
+                    </div>
+                    <p class="summary" id="candidateSummary">-</p>
+                </div>
             </div>
             
-            <div class="qa-section" id="qaSection">
-                <div class="section-title">💬 Ask Questions</div>
-                <div class="input-group">
-                    <input type="text" class="question-input" id="questionInput" 
-                           placeholder="Ask anything about your document...">
-                    <button class="ask-btn" onclick="askQuestion()">🚀 Ask</button>
+            <!-- Skills Section -->
+            <div class="skills-section" id="skillsSection" style="display: none;">
+                <div class="section-title">🎯 Skills & Expertise</div>
+                <div class="skills-grid" id="skillsGrid"></div>
+            </div>
+            
+            <!-- Experience Timeline -->
+            <div class="experience-section" id="experienceSection" style="display: none;">
+                <div class="section-title">💻 Professional Experience</div>
+                <div class="timeline" id="experienceTimeline"></div>
+            </div>
+            
+            <!-- Education Section -->
+            <div class="education-section" id="educationSection" style="display: none;">
+                <div class="section-title">🎓 Education</div>
+                <div class="education-grid" id="educationGrid"></div>
+            </div>
+
+            <!-- Certifications & Languages Section -->
+            <div class="additional-section" id="certificationsLanguagesSection" style="display: none;">
+                <div class="section-title">🏆 Certifications & Languages</div>
+                <div class="additional-grid">
+                    <div id="certificationsBox" style="display: none;">
+                        <h4>🎖️ Certifications</h4>
+                        <ul id="certificationsList"></ul>
+                    </div>
+                    <div id="languagesBox" style="display: none;">
+                        <h4>🌍 Languages</h4>
+                        <ul id="languagesList"></ul>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Resume Strengths & Recommendations -->
+            <div class="resume-details-section" id="resumeDetailsSection" style="display: none;">
+                <div class="section-title">✨ Profile Strengths & Recommendations</div>
+                <div class="details-grid">
+                    <div id="strengthsBox" style="display: none;">
+                        <h4>💪 Strengths</h4>
+                        <ul id="strengthsList"></ul>
+                    </div>
+                    <div id="recommendationsBox" style="display: none;">
+                        <h4>💡 Recommendations</h4>
+                        <ul id="recommendationsList"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Section -->
+            <div class="analysis-section" id="analysisSection" style="display: none;">
+                <div class="section-title">📊 AI Analysis & Career Insights</div>
                 
-                <div class="answer-box" id="answerBox">
-                    <h4>💡 Answer</h4>
-                    <div id="answer"></div>
+                <div class="analysis-grid" id="analysisGrid">
+                    <!-- Cards will be dynamically generated here -->
                 </div>
+            </div>
+
+            <!-- Chat Section - Hidden by default -->
+            <div class="chat-section" id="chatSection" style="display: none;">
+            </div>
+            
+            <!-- Certifications & Languages (Old - to be removed) -->
+            <div class="additional-section" id="additionalSection" style="display: none;">
+                <div class="section-title">🏆 Certifications & Languages</div>
+                <div class="additional-grid">
+                    <div id="certificationsBox">
+                        <h4>Certifications</h4>
+                        <ul id="certificationsList"></ul>
+                    </div>
+                    <div id="languagesBox">
+                        <h4>Languages</h4>
+                        <ul id="languagesList"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Chatbot Button -->
+    <button class="chatbot-fab" id="chatbotBtn" onclick="toggleChatbot()" title="Chat with AI Coach">
+        💬
+    </button>
+
+    <!-- Chatbot Modal -->
+    <div class="chatbot-modal" id="chatbotModal">
+        <div class="chatbot-container">
+            <div class="chatbot-header">
+                <h3>AI Career Coach</h3>
+                <div class="chatbot-controls">
+                    <button class="chatbot-menu" id="chatbotMenuBtn" onclick="minimizeChatbot()" title="Minimize">−</button>
+                    <button class="chatbot-close" onclick="closeChatbot()">✕</button>
+                </div>
+            </div>
+            <div class="chatbot-messages" id="chatbotMessages"></div>
+            <div class="chatbot-input-group">
+                <input type="text" id="chatbotInput" class="chatbot-input" placeholder="Ask about your resume..." />
+                <button class="chatbot-send" onclick="sendChatbotMessage()">Send</button>
             </div>
         </div>
     </div>
@@ -60,3 +159,4 @@
     <script src="/static/script.js"></script>
 </body>
 </html>
+

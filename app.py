@@ -10,6 +10,11 @@ from pydantic import BaseModel
 import PyPDF2
 import google.generativeai as genai
 
+# Import custom modules
+from src.scrapers import LinkedInScraper
+from src.builders import ProfileBuilder
+from src.recommenders import JobRecommender
+
 load_dotenv()
 
 # Configuration
@@ -39,6 +44,13 @@ class ResumeAnalysis(BaseModel):
 
 class ChatMessage(BaseModel):
     message: str
+    session_id: str
+
+class LinkedInProfile(BaseModel):
+    linkedin_url: str
+    session_id: str
+
+class JobRecommendationRequest(BaseModel):
     session_id: str
 
 def cleanup_old_sessions():
@@ -167,8 +179,12 @@ async def upload_resume(file: UploadFile = File(...), session_id: str = Form(...
         # Store session data
         sessions[session_id] = {
             "resume_text": resume_text,
-            "resume_data": resume_data
+            "resume_data": resume_data,
+            "linkedin_data": None,
+            "unified_profile": None
         }
+        
+        session_timestamps[session_id] = time.time()
         
         print(f"Session created: {session_id}, Total sessions: {len(sessions)}")
         
@@ -354,6 +370,109 @@ Provide a helpful, conversational response (2-3 sentences). Be supportive and ac
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Chat error: {str(e)}")
+
+@app.post("/add-linkedin")
+async def add_linkedin_profile(linkedin_request: LinkedInProfile):
+    """Extract LinkedIn profile and merge with resume data"""
+    session_id = linkedin_request.session_id
+    linkedin_url = linkedin_request.linkedin_url
+    
+    if session_id not in sessions:
+        raise HTTPException(status_code=400, detail="No resume uploaded for this session")
+    
+    try:
+        print(f"🔗 Processing LinkedIn profile: {linkedin_url}")
+        
+        # Extract LinkedIn data
+        scraper = LinkedInScraper(headless=True)
+        linkedin_data = scraper.extract_profile(linkedin_url)
+        
+        if not linkedin_data:
+            raise HTTPException(status_code=400, detail="Failed to extract LinkedIn profile")
+        
+        # Store LinkedIn data
+        sessions[session_id]["linkedin_data"] = linkedin_data
+        
+        # Build unified profile
+        resume_data = sessions[session_id]["resume_data"]
+        unified_profile = ProfileBuilder.merge_profiles(resume_data, linkedin_data)
+        sessions[session_id]["unified_profile"] = unified_profile
+        
+        print(f"✓ Unified profile created with {len(unified_profile.get('skills', []))} skills")
+        
+        return {
+            "message": "LinkedIn profile added successfully",
+            "linkedin_data": linkedin_data,
+            "unified_profile": unified_profile
+        }
+    
+    except Exception as e:
+        print(f"LinkedIn extraction error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"LinkedIn extraction failed: {str(e)}")
+
+@app.post("/skip-linkedin")
+async def skip_linkedin(analysis_request: ResumeAnalysis):
+    """Build profile from resume only (skip LinkedIn)"""
+    session_id = analysis_request.session_id
+    
+    if session_id not in sessions:
+        raise HTTPException(status_code=400, detail="No resume uploaded for this session")
+    
+    try:
+        resume_data = sessions[session_id]["resume_data"]
+        
+        # Build unified profile from resume only
+        unified_profile = ProfileBuilder.merge_profiles(resume_data, None)
+        sessions[session_id]["unified_profile"] = unified_profile
+        
+        print(f"✓ Resume-only profile created")
+        
+        return {
+            "message": "Profile created from resume only",
+            "unified_profile": unified_profile
+        }
+    
+    except Exception as e:
+        print(f"Profile building error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Profile building failed: {str(e)}")
+
+@app.post("/recommend-jobs")
+async def recommend_jobs(job_request: JobRecommendationRequest):
+    """Generate job recommendations based on unified profile"""
+    session_id = job_request.session_id
+    
+    if session_id not in sessions:
+        raise HTTPException(status_code=400, detail="No profile found for this session")
+    
+    if not sessions[session_id].get("unified_profile"):
+        raise HTTPException(status_code=400, detail="Please complete profile building first")
+    
+    try:
+        unified_profile = sessions[session_id]["unified_profile"]
+        
+        print(f"🎯 Generating job recommendations for {unified_profile.get('name', 'candidate')}")
+        
+        # Generate recommendations
+        recommender = JobRecommender()
+        recommendations = recommender.recommend_jobs(unified_profile, num_recommendations=5)
+        
+        # Store recommendations in session
+        sessions[session_id]["recommendations"] = recommendations
+        
+        print(f"✓ Generated {len(recommendations.get('recommendations', []))} job recommendations")
+        
+        return {
+            "message": "Job recommendations generated successfully",
+            "recommendations": recommendations
+        }
+    
+    except Exception as e:
+        print(f"Job recommendation error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Job recommendation failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,4 +1,5 @@
 let sessionId = Date.now().toString();
+let profileBuilt = false;
 
 document.getElementById('resumeFile').addEventListener('change', async (e) => {
     const file = e.target.files[0];
@@ -34,6 +35,9 @@ document.getElementById('resumeFile').addEventListener('change', async (e) => {
             
             // Display resume data
             displayResumeData(data.resume_data);
+            
+            // Show LinkedIn section
+            document.getElementById('linkedinSection').style.display = 'block';
             
             // Get detailed analysis
             await getDetailedAnalysis();
@@ -374,3 +378,225 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+
+
+// LinkedIn Profile Functions
+async function addLinkedInProfile() {
+    const linkedinUrl = document.getElementById('linkedinUrl').value.trim();
+    const statusEl = document.getElementById('linkedinStatus');
+    
+    if (!linkedinUrl) {
+        statusEl.textContent = '⚠️ Please enter a LinkedIn profile URL';
+        statusEl.className = 'linkedin-status error';
+        return;
+    }
+    
+    if (!linkedinUrl.includes('linkedin.com')) {
+        statusEl.textContent = '⚠️ Please enter a valid LinkedIn URL';
+        statusEl.className = 'linkedin-status error';
+        return;
+    }
+    
+    statusEl.textContent = '🔄 Extracting LinkedIn profile...';
+    statusEl.className = 'linkedin-status';
+    
+    try {
+        const response = await fetch('/add-linkedin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                linkedin_url: linkedinUrl,
+                session_id: sessionId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            statusEl.textContent = '✓ LinkedIn profile added successfully!';
+            statusEl.className = 'linkedin-status success';
+            
+            // Update profile with merged data
+            if (data.unified_profile) {
+                displayResumeData(data.unified_profile);
+            }
+            
+            profileBuilt = true;
+            
+            // Hide LinkedIn section and show job recommendations
+            setTimeout(() => {
+                document.getElementById('linkedinSection').style.display = 'none';
+                document.getElementById('jobRecommendationsSection').style.display = 'block';
+            }, 1500);
+        } else {
+            statusEl.textContent = '❌ ' + (data.detail || 'Failed to extract LinkedIn profile');
+            statusEl.className = 'linkedin-status error';
+        }
+    } catch (error) {
+        console.error('LinkedIn error:', error);
+        statusEl.textContent = '❌ Error: ' + error.message;
+        statusEl.className = 'linkedin-status error';
+    }
+}
+
+async function skipLinkedIn() {
+    const statusEl = document.getElementById('linkedinStatus');
+    statusEl.textContent = '⏭️ Building profile from resume only...';
+    statusEl.className = 'linkedin-status';
+    
+    try {
+        const response = await fetch('/skip-linkedin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: sessionId })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            statusEl.textContent = '✓ Profile created from resume';
+            statusEl.className = 'linkedin-status success';
+            
+            profileBuilt = true;
+            
+            // Hide LinkedIn section and show job recommendations
+            setTimeout(() => {
+                document.getElementById('linkedinSection').style.display = 'none';
+                document.getElementById('jobRecommendationsSection').style.display = 'block';
+            }, 1000);
+        } else {
+            statusEl.textContent = '❌ ' + (data.detail || 'Failed to build profile');
+            statusEl.className = 'linkedin-status error';
+        }
+    } catch (error) {
+        console.error('Skip LinkedIn error:', error);
+        statusEl.textContent = '❌ Error: ' + error.message;
+        statusEl.className = 'linkedin-status error';
+    }
+}
+
+// Job Recommendations Functions
+async function getJobRecommendations() {
+    if (!profileBuilt) {
+        alert('Please complete profile building first');
+        return;
+    }
+    
+    const btn = document.getElementById('getRecommendationsBtn');
+    const contentEl = document.getElementById('jobRecommendationsContent');
+    
+    btn.disabled = true;
+    btn.textContent = '🔄 Generating recommendations...';
+    contentEl.innerHTML = '<div class="loading"><div class="spinner"></div><p>Analyzing your profile and matching with jobs...</p></div>';
+    
+    try {
+        const response = await fetch('/recommend-jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: sessionId })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            displayJobRecommendations(data.recommendations);
+            btn.style.display = 'none';
+        } else {
+            contentEl.innerHTML = `<div class="error-message">❌ ${data.detail || 'Failed to generate recommendations'}</div>`;
+            btn.disabled = false;
+            btn.textContent = 'Try Again';
+        }
+    } catch (error) {
+        console.error('Job recommendations error:', error);
+        contentEl.innerHTML = `<div class="error-message">❌ Error: ${error.message}</div>`;
+        btn.disabled = false;
+        btn.textContent = 'Try Again';
+    }
+}
+
+function displayJobRecommendations(data) {
+    const contentEl = document.getElementById('jobRecommendationsContent');
+    
+    if (!data || !data.recommendations || data.recommendations.length === 0) {
+        contentEl.innerHTML = '<p>No recommendations available</p>';
+        return;
+    }
+    
+    let html = '<div class="job-recommendations-grid">';
+    
+    // Display job recommendations
+    data.recommendations.forEach((job, index) => {
+        html += `
+            <div class="job-card">
+                <div class="job-header">
+                    <h3>${job.job_title}</h3>
+                    <div class="match-score" style="background: linear-gradient(135deg, #667eea ${job.match_score}%, #ddd ${job.match_score}%);">
+                        ${job.match_score}% Match
+                    </div>
+                </div>
+                <p class="company-type">🏢 ${job.company_type}</p>
+                <p class="job-reasoning">${job.reasoning}</p>
+                
+                <div class="job-details">
+                    <div class="job-section">
+                        <h4>✅ Matching Skills</h4>
+                        <div class="skills-tags">
+                            ${job.matching_skills.map(s => `<span class="skill-tag match">${s}</span>`).join('')}
+                        </div>
+                    </div>
+                    
+                    ${job.skill_gaps && job.skill_gaps.length > 0 ? `
+                        <div class="job-section">
+                            <h4>📚 Skills to Develop</h4>
+                            <div class="skills-tags">
+                                ${job.skill_gaps.map(s => `<span class="skill-tag gap">${s}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="job-footer">
+                        <span class="salary">💰 ${job.salary_range}</span>
+                        <span class="growth">📈 ${job.growth_potential}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    // Display career insights
+    if (data.career_insights) {
+        html += `
+            <div class="career-insights">
+                <h3>💡 Career Insights</h3>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <h4>🌟 Strongest Areas</h4>
+                        <p>${data.career_insights.strongest_areas}</p>
+                    </div>
+                    <div class="insight-card">
+                        <h4>🏭 Recommended Industries</h4>
+                        <div class="industry-tags">
+                            ${data.career_insights.recommended_industries.map(i => `<span class="industry-tag">${i}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <h4>🚀 Next Level Roles</h4>
+                        <ul>
+                            ${data.career_insights.next_level_roles.map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="insight-card">
+                        <h4>📖 Priority Skills to Learn</h4>
+                        <ul>
+                            ${data.career_insights.skill_development_priority.map(s => `<li>${s}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    contentEl.innerHTML = html;
+}

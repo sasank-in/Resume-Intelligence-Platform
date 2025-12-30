@@ -37,6 +37,22 @@
             
             <div id="status" class="status"></div>
             
+            <!-- LinkedIn Section -->
+            <div class="linkedin-section" id="linkedinSection" style="display: none;">
+                <div class="section-title">🔗 LinkedIn Profile (Optional)</div>
+                <div class="linkedin-card">
+                    <p style="margin-bottom: 20px; color: #667eea;">
+                        Add your LinkedIn profile for enhanced job recommendations
+                    </p>
+                    <div class="linkedin-input-group">
+                        <input type="text" id="linkedinUrl" placeholder="https://www.linkedin.com/in/your-profile" class="linkedin-input">
+                        <button class="btn-primary" onclick="addLinkedInProfile()">Add LinkedIn</button>
+                        <button class="btn-secondary" onclick="skipLinkedIn()">Skip</button>
+                    </div>
+                    <p id="linkedinStatus" class="linkedin-status"></p>
+                </div>
+            </div>
+            
             <!-- Profile Section -->
             <div class="profile-section" id="profileSection" style="display: none;">
                 <div class="section-title">👤 Candidate Profile</div>
@@ -118,6 +134,15 @@
                 <div class="analysis-card full-width">
                     <p id="suggestedJobSummary">-</p>
                 </div>
+            </div>
+            
+            <!-- Job Recommendations Section -->
+            <div class="recommendations-section" id="jobRecommendationsSection" style="display: none;">
+                <div class="section-title">🎯 Job Recommendations</div>
+                <button class="btn-primary" onclick="getJobRecommendations()" id="getRecommendationsBtn">
+                    Get Job Recommendations
+                </button>
+                <div id="jobRecommendationsContent" style="margin-top: 20px;"></div>
             </div>
 
             <!-- Chat Section - Hidden by default -->

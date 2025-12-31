@@ -1,266 +1,371 @@
-# Resume Analyzer with Job Recommendations
+# Resume Summarizer
 
-An intelligent resume analysis and job recommendation system powered by Google's Gemini AI. Upload your resume, optionally add your LinkedIn profile, and get AI-powered job recommendations based on semantic similarity matching.
+AI-powered resume analysis and intelligent job recommendation system powered by Groq API.
+
+## Overview
+
+Resume Summarizer is a comprehensive web application that analyzes resumes using advanced AI models to provide:
+- Detailed resume parsing and structured data extraction
+- Professional career analysis and insights
+- AI-powered chat interface for resume questions
+- LinkedIn profile integration and data merging
+- Intelligent job recommendations based on profile
 
 ## Features
 
-📄 **Resume Analysis** - Upload PDF resume for instant AI-powered extraction  
-🔗 **LinkedIn Integration** - Optional LinkedIn profile scraping for enhanced data  
-🤝 **Profile Merging** - Combines resume + LinkedIn into unified profile  
-🎯 **Job Recommendations** - AI-powered job matching with semantic similarity  
-📊 **Match Scoring** - See how well you match each recommended position  
-💡 **Career Insights** - Get personalized career development recommendations  
-✨ **Beautiful UI** - Modern, responsive design with smooth animations  
-
-## User Flow
-
-```
-1. Upload Resume (PDF)
-   ↓
-2. Ask: "Do you want to share LinkedIn profile?"
-   ↓
-   Yes → LinkedIn Extraction → Profile Merger
-   No  → Resume-Only Processing
-   ↓
-3. Unified Profile Builder
-   ↓
-4. Job Recommendations (AI-powered semantic matching)
-```
+- **Resume Analysis**: Extract and analyze resume data using AI
+- **Structured Extraction**: Convert unstructured resume text into organized JSON format
+- **Career Insights**: Get detailed analysis including strengths, improvement areas, and career trajectory
+- **Interactive Chat**: Ask questions about your resume with AI-powered responses
+- **LinkedIn Integration**: Merge LinkedIn profile data with resume information
+- **Job Recommendations**: Get personalized job recommendations based on your unified profile
+- **Session Management**: Secure session handling for user data
 
 ## Tech Stack
 
-- **Backend**: FastAPI + Python
-- **AI**: Google Gemini 2.0 Flash
-- **Web Scraping**: Selenium WebDriver
+- **Backend**: FastAPI, Python 3.8+
+- **AI/LLM**: Groq API (openai/gpt-oss-120b model)
+- **Web Scraping**: Selenium with ChromeDriver
 - **PDF Processing**: PyPDF2
-- **Frontend**: Vanilla HTML/CSS/JavaScript
-- **Architecture**: Modular, scalable design
+- **Frontend**: HTML5, CSS3, JavaScript
+- **Server**: Uvicorn
 
-## Setup
+## Project Structure
 
-1. Install dependencies:
+```
+resume-summarizer/
+├── config.py                 # Configuration and constants
+├── models.py                 # Pydantic request/response models
+├── services.py               # Business logic and AI operations
+├── session_manager.py        # Session management utilities
+├── handlers.py               # Route handlers for endpoints
+├── main.py                   # FastAPI application entry point
+├── app.py                    # Legacy main app (deprecated, use main.py)
+│
+├── src/
+│   ├── scrapers/            # LinkedIn and web scraping
+│   │   └── linkedin_scraper.py
+│   ├── builders/            # Profile building and merging
+│   │   └── profile_builder.py
+│   ├── recommenders/        # Job recommendation engine
+│   │   └── job_recommender.py
+│   └── utils/               # Utility functions
+│       ├── list_models.py
+│       └── pdf_qa_system.py
+│
+├── static/                   # Frontend assets
+│   ├── index.html
+│   ├── style.css
+│   └── script.js
+│
+├── tests/                    # Test suite
+│   └── test_system.py
+│
+├── docs/                     # Documentation
+│   └── README.md
+│
+├── requirements.txt          # Python dependencies
+├── .env                      # Environment variables
+└── PROJECT_STRUCTURE.md      # This file
+```
+
+## Installation
+
+### Prerequisites
+- Python 3.8 or higher
+- Chrome/Chromium browser
+- ChromeDriver (matching your Chrome version)
+- Groq API key
+
+### Step 1: Clone Repository
+```bash
+git clone <repository-url>
+cd resume-summarizer
+```
+
+### Step 2: Create Virtual Environment
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### Step 3: Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Install Chrome WebDriver for Selenium:
-   - Download ChromeDriver: https://chromedriver.chromium.org/
-   - Or install via package manager:
-     ```bash
-     # Windows (chocolatey)
-     choco install chromedriver
-     
-     # Mac
-     brew install chromedriver
-     
-     # Linux
-     sudo apt-get install chromium-chromedriver
-     ```
-
-3. Create `.env` file with your Gemini API key:
+### Step 4: Configure Environment
+Create a `.env` file in the project root:
 ```
-GEMINI_API_KEY=your_api_key_here
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
-Get your free API key at: https://makersuite.google.com/app/apikey
+### Step 5: Verify Installation
+```bash
+python tests/test_system.py
+```
+
+All tests should pass with `[PASS]` status.
 
 ## Usage
 
-### Web Application
-
-Run the FastAPI web app:
+### Starting the Application
 ```bash
-python app.py
+python main.py
 ```
 
-Then open your browser to: http://localhost:8000
+The application will start at: `http://localhost:8000`
 
-**Complete Flow:**
-1. Upload your resume (PDF)
-2. Choose to add LinkedIn profile or skip
-3. View your unified profile
-4. Get AI-powered job recommendations
-5. See match scores and career insights
+### API Endpoints
 
-### Features in Detail
-
-**Resume Upload**
-- Extracts text from PDF
-- AI structures data (name, skills, experience, education)
-- Displays professional profile
-
-**LinkedIn Integration (Optional)**
-- Scrapes public LinkedIn profile
-- Extracts additional skills and experience
-- Merges with resume data for complete profile
-
-**Job Recommendations**
-- AI analyzes your complete profile
-- Generates 5 personalized job recommendations
-- Shows match scores (0-100%)
-- Identifies matching skills and gaps
-- Provides salary ranges and growth potential
-- Offers career development insights
-
-## How It Works
-
-### System Architecture
-
+#### 1. Upload Resume
 ```
-┌─────────────────┐
-│  Resume Upload  │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐      ┌──────────────────┐
-│  PDF Extraction │      │ LinkedIn Scraper │
-│   (PyPDF2)      │      │   (Selenium)     │
-└────────┬────────┘      └────────┬─────────┘
-         │                        │
-         └────────┬───────────────┘
-                  │
-                  ▼
-         ┌────────────────┐
-         │ Profile Builder│
-         │  (Merge Data)  │
-         └────────┬───────┘
-                  │
-                  ▼
-         ┌────────────────┐
-         │ Job Recommender│
-         │  (Gemini AI)   │
-         └────────┬───────┘
-                  │
-                  ▼
-         ┌────────────────┐
-         │ Recommendations│
-         │  + Insights    │
-         └────────────────┘
+POST /upload
+Content-Type: multipart/form-data
+
+Parameters:
+- file: PDF file
+- session_id: unique session identifier
+
+Response:
+{
+  "message": "Resume analyzed successfully",
+  "resume_data": {...},
+  "characters": 5234
+}
 ```
 
-### Processing Pipeline
+#### 2. Get Analysis
+```
+POST /get-analysis
+Content-Type: application/json
 
-1. **Resume Extraction**
-   - Upload PDF file
-   - Extract text with PyPDF2
-   - AI structures data into JSON
+Request:
+{
+  "session_id": "your-session-id"
+}
 
-2. **LinkedIn Integration** (Optional)
-   - User provides LinkedIn URL
-   - Selenium scrapes public profile
-   - Extracts skills, experience, education
+Response:
+{
+  "resume_data": {...},
+  "analysis": {
+    "overall_score": "...",
+    "career_trajectory": "...",
+    "key_strengths": "...",
+    "improvement_areas": "...",
+    "industry_fit": "...",
+    "next_career_moves": "...",
+    "suggested_job_summary": "..."
+  }
+}
+```
 
-3. **Profile Merging**
-   - Combines resume + LinkedIn data
-   - Removes duplicates
-   - Prioritizes most complete information
-   - Creates unified profile
+#### 3. Chat
+```
+POST /chat
+Content-Type: application/json
 
-4. **Job Recommendation**
-   - AI analyzes unified profile
-   - Semantic similarity matching
-   - Generates 5 personalized recommendations
-   - Calculates match scores
-   - Identifies skill gaps
+Request:
+{
+  "message": "What skills should I highlight?",
+  "session_id": "your-session-id"
+}
 
-5. **Career Insights**
-   - Strongest areas analysis
-   - Industry recommendations
-   - Next-level role suggestions
-   - Skill development priorities
+Response:
+{
+  "response": "Based on your resume..."
+}
+```
 
-## API Endpoints
+#### 4. Add LinkedIn Profile
+```
+POST /add-linkedin
+Content-Type: application/json
 
-### POST /upload
-Upload and analyze resume PDF
-- **Input**: PDF file + session_id
-- **Output**: Structured resume data
+Request:
+{
+  "linkedin_url": "https://linkedin.com/in/username",
+  "session_id": "your-session-id"
+}
 
-### POST /add-linkedin
-Add LinkedIn profile to session
-- **Input**: linkedin_url + session_id
-- **Output**: LinkedIn data + unified profile
+Response:
+{
+  "message": "LinkedIn profile processed successfully",
+  "unified_profile": {...},
+  "info": "Merged data from resume + LinkedIn..."
+}
+```
 
-### POST /skip-linkedin
-Build profile from resume only
-- **Input**: session_id
-- **Output**: Unified profile (resume-only)
+#### 5. Skip LinkedIn
+```
+POST /skip-linkedin
+Content-Type: application/json
 
-### POST /recommend-jobs
-Generate job recommendations
-- **Input**: session_id
-- **Output**: 5 job recommendations + career insights
+Request:
+{
+  "session_id": "your-session-id"
+}
 
-### POST /get-analysis
-Get detailed career analysis
-- **Input**: session_id
-- **Output**: Career assessment and recommendations
+Response:
+{
+  "message": "Profile created from resume only",
+  "unified_profile": {...}
+}
+```
 
-### POST /chat
-Chat with AI career coach
-- **Input**: message + session_id
-- **Output**: AI response
+#### 6. Recommend Jobs
+```
+POST /recommend-jobs
+Content-Type: application/json
 
-## Benefits
+Request:
+{
+  "session_id": "your-session-id"
+}
 
-✅ Complete career profile from multiple sources  
-✅ AI-powered job matching with semantic similarity  
-✅ Personalized recommendations based on your profile  
-✅ Skill gap analysis for career development  
-✅ Match scores to prioritize opportunities  
-✅ Industry and role recommendations  
-✅ Optional LinkedIn integration for richer data  
-✅ Fast, automated candidate assessment  
-✅ No complex setup or databases needed  
+Response:
+{
+  "message": "Job recommendations generated successfully",
+  "recommendations": {...}
+}
+```
 
-## Modules
+#### 7. Health Check
+```
+GET /health
 
-### linkedin_scraper.py
-- Selenium-based LinkedIn profile scraper
-- Extracts name, headline, skills, experience, education
-- Headless browser support
-- Error handling and fallbacks
+Response:
+{
+  "status": "healthy",
+  "service": "Resume Summarizer"
+}
+```
 
-### profile_builder.py
-- Merges resume and LinkedIn data
-- Removes duplicates intelligently
-- Prioritizes most complete information
-- Handles resume-only mode
+## Configuration
 
-### job_recommender.py
-- AI-powered job recommendation engine
-- Semantic similarity matching
-- Match score calculation
-- Career insights generation
-- Skill gap analysis
+### Environment Variables
+Configure in `.env` file:
 
-### app.py
-- FastAPI web server
-- Session management
-- API endpoints for complete flow
-- Integration of all modules  
+```
+# Groq API Configuration
+GROQ_API_KEY=your_api_key_here
 
-## Limitations
+# File Upload Settings
+MAX_FILE_SIZE=10485760  # 10MB in bytes
 
-- LinkedIn scraping requires public profiles
-- Selenium needs ChromeDriver installed
-- Rate limits on Gemini API (free tier: 60 req/min)
-- Resume processing limited to first 12,000 characters
-- Session data stored in memory (lost on restart)
+# Session Settings
+REQUEST_TIMEOUT=60  # seconds
+```
 
-## Future Enhancements
+### API Settings
+Modify in `config.py`:
+- `GROQ_MODEL`: Change the AI model (default: 'openai/gpt-oss-120b')
+- `MAX_FILE_SIZE`: Maximum PDF file size in bytes
+- `REQUEST_TIMEOUT`: Session timeout duration
 
-- Job board integration (Indeed, LinkedIn Jobs)
-- Real-time job matching with live postings
-- Resume optimization suggestions
-- Interview preparation based on job match
-- Salary negotiation insights
-- Application tracking system
-- Email notifications for new matches
-- Multi-user support with database
-- Resume comparison tools
-- ATS compatibility scoring
+## Testing
+
+Run the complete system test:
+```bash
+python tests/test_system.py
+```
+
+Tests include:
+- Import verification
+- Environment configuration
+- ChromeDriver availability
+- Groq API connectivity
+- Profile builder functionality
+
+## Development
+
+### Code Organization
+- **config.py**: Configuration management
+- **models.py**: Data validation (Pydantic)
+- **services.py**: Core business logic
+- **session_manager.py**: Session handling
+- **handlers.py**: HTTP request handlers
+- **main.py**: FastAPI application setup
+
+### Adding New Features
+
+1. Add request/response models in `models.py`
+2. Implement business logic in `services.py`
+3. Create handler class in `handlers.py`
+4. Add route in `main.py`
+
+### Code Style
+- Follow PEP 8 guidelines
+- Use type hints for all functions
+- Include docstrings for all modules/functions/classes
+- Use professional naming conventions
+
+## Troubleshooting
+
+### Issue: ChromeDriver Not Found
+**Solution**: Install ChromeDriver matching your Chrome version
+- Windows: `choco install chromedriver`
+- Mac: `brew install chromedriver`
+- Linux: `sudo apt-get install chromium-chromedriver`
+
+### Issue: GROQ_API_KEY not found
+**Solution**: Create `.env` file with valid API key
+```
+GROQ_API_KEY=your_actual_key_here
+```
+
+### Issue: Port 8000 Already in Use
+**Solution**: Change port in `main.py`
+```python
+uvicorn.run(app, host="127.0.0.1", port=8001)
+```
+
+### Issue: LinkedIn Scraping Fails
+**Solution**: LinkedIn structure may have changed
+- Check if LinkedIn selectors are still valid
+- Update selectors in `src/scrapers/linkedin_scraper.py`
+- System automatically falls back to resume-only mode
+
+## Performance Optimization
+
+- **Session Cleanup**: Automatic cleanup of expired sessions every 60 seconds
+- **File Upload**: Limit to 10MB per file
+- **AI Requests**: Uses fast Groq API for low-latency responses
+- **Caching**: Session data cached in memory
+
+## Security Considerations
+
+- API keys stored in environment variables (not in code)
+- File uploads validated (PDF only)
+- Session timeouts prevent memory leaks
+- No sensitive data logged to console in production
+
+## API Limits
+
+- **Max File Size**: 10MB per resume
+- **Max Requests**: 30 requests per minute (configurable)
+- **Session Timeout**: 60 seconds of inactivity
+- **Groq API**: Depends on Groq plan
+
+## Support & Documentation
+
+- Check `docs/README.md` for detailed documentation
+- Review `PROJECT_STRUCTURE.md` for architecture details
+- Run tests with: `python tests/test_system.py`
 
 ## License
 
-MIT License - Feel free to use and modify!
+[Add your license information here]
+
+## Contributing
+
+[Add contribution guidelines here]
+
+## Changelog
+
+### Version 1.0.0 (2025-12-31)
+- Initial release
+- Resume parsing and analysis
+- LinkedIn profile integration
+- Job recommendations
+- Chat interface

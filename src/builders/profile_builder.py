@@ -8,40 +8,44 @@ class ProfileBuilder:
     def merge_profiles(resume_data: Dict, linkedin_data: Optional[Dict] = None) -> Dict:
         """
         Merge resume and LinkedIn data with priority to most complete information
+        Prefers resume data when LinkedIn scraping fails (returns None values)
         """
         if not linkedin_data:
             # Resume-only mode
             return ProfileBuilder._build_from_resume(resume_data)
         
-        # Merge both sources
+        # Filter out None values from LinkedIn data - they indicate failed extraction
+        linkedin_data_clean = {k: v for k, v in linkedin_data.items() if v is not None}
+        
+        # Merge both sources with smart fallback
         unified_profile = {
-            "name": linkedin_data.get("name") or resume_data.get("name", "N/A"),
-            "email": resume_data.get("email", "N/A"),
-            "phone": resume_data.get("phone", "N/A"),
-            "location": linkedin_data.get("location") or resume_data.get("location", "N/A"),
-            "headline": linkedin_data.get("headline") or resume_data.get("headline", "N/A"),
+            "name": linkedin_data_clean.get("name") or resume_data.get("name") or "N/A",
+            "email": resume_data.get("email") or "N/A",
+            "phone": resume_data.get("phone") or "N/A",
+            "location": linkedin_data_clean.get("location") or resume_data.get("location") or "N/A",
+            "headline": linkedin_data_clean.get("headline") or resume_data.get("headline") or "N/A",
             "summary": ProfileBuilder._merge_summaries(
                 resume_data.get("summary"),
-                linkedin_data.get("about")
+                linkedin_data_clean.get("about")
             ),
             "skills": ProfileBuilder._merge_lists(
                 resume_data.get("skills", []),
-                linkedin_data.get("skills", [])
+                linkedin_data_clean.get("skills") or []
             ),
             "experience": ProfileBuilder._merge_experience(
                 resume_data.get("experience", []),
-                linkedin_data.get("experience", [])
+                linkedin_data_clean.get("experience") or []
             ),
             "education": ProfileBuilder._merge_education(
                 resume_data.get("education", []),
-                linkedin_data.get("education", [])
+                linkedin_data_clean.get("education") or []
             ),
             "certifications": ProfileBuilder._merge_lists(
                 resume_data.get("certifications", []),
-                linkedin_data.get("certifications", [])
+                linkedin_data_clean.get("certifications") or []
             ),
             "languages": resume_data.get("languages", []),
-            "data_sources": ["resume", "linkedin"]
+            "data_sources": ["resume", "linkedin"] if linkedin_data_clean else ["resume"]
         }
         
         return unified_profile

@@ -1,18 +1,18 @@
 import os
 import json
 import PyPDF2
-import google.generativeai as genai
+from groq import Groq
 from dotenv import load_dotenv
 
 class ResumeAnalyzer:
     def __init__(self):
         load_dotenv()
-        api_key = os.getenv('GEMINI_API_KEY')
+        api_key = os.getenv('GROQ_API_KEY')
         if not api_key:
-            raise ValueError("GEMINI_API_KEY not found in .env file")
+            raise ValueError("GROQ_API_KEY not found in .env file")
         
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash')
+        self.client = Groq(api_key=api_key)
+        self.model_name = 'openai/gpt-oss-120b'
         self.resume_text = ""
         self.resume_data = {}
     
@@ -73,10 +73,14 @@ RESUME TEXT:
 
 Return ONLY the JSON, no other text."""
         
-        response = self.model.generate_content(prompt)
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7
+        )
         
         try:
-            json_str = response.text
+            json_str = response.choices[0].message.content
             if "```json" in json_str:
                 json_str = json_str.split("```json")[1].split("```")[0]
             elif "```" in json_str:
@@ -86,7 +90,7 @@ Return ONLY the JSON, no other text."""
             return self.resume_data
         except:
             print("⚠️ Could not parse structured data, showing raw analysis...")
-            return {"raw_analysis": response.text}
+            return {"raw_analysis": response.choices[0].message.content}
     
     def generate_detailed_analysis(self):
         """Generate detailed analysis and recommendations"""
@@ -111,10 +115,14 @@ Provide a JSON response with:
 
 Return ONLY the JSON, no other text."""
         
-        response = self.model.generate_content(prompt)
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7
+        )
         
         try:
-            json_str = response.text
+            json_str = response.choices[0].message.content
             if "```json" in json_str:
                 json_str = json_str.split("```json")[1].split("```")[0]
             elif "```" in json_str:
@@ -122,7 +130,7 @@ Return ONLY the JSON, no other text."""
             
             return json.loads(json_str)
         except:
-            return {"analysis": response.text}
+            return {"analysis": response.choices[0].message.content}
 
 def main():
     analyzer = ResumeAnalyzer()

@@ -1,24 +1,32 @@
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
+from groq import Groq
 
 load_dotenv()
 
-# Configure Gemini AI
-api_key = os.getenv('GEMINI_API_KEY')
+# Configure Groq
+api_key = os.getenv('GROQ_API_KEY')
 if not api_key:
-    print("GEMINI_API_KEY not found in .env file")
+    print("GROQ_API_KEY not found in .env file")
     exit(1)
 
-genai.configure(api_key=api_key)
+client = Groq(api_key=api_key)
 
-print("Available Gemini Models:\n")
+print("Available Groq Models:\n")
 print("=" * 80)
 
-for model in genai.list_models():
-    print(f"\nModel: {model.name}")
-    print(f"Display Name: {model.display_name}")
-    print(f"Description: {model.description}")
-    print(f"Version: {model.version}")
-    print(f"Supported Methods: {model.supported_generation_methods}")
-    print("-" * 80)
+try:
+    models = client.models.list()
+    for model in models.data:
+        print(f"\nModel ID: {model.id}")
+        print(f"Object: {model.object}")
+        print("-" * 80)
+except Exception as e:
+    print(f"Error listing models: {e}")
+    print("\nAvailable Groq models:")
+    print("- mixtral-8x7b-32768 (Mixtral 8x7B) - Recommended")
+    print("- llama2-70b-4096 (Llama 2 70B)")
+    print("- llama-3.1-70b-versatile (Llama 3.1 70B)")
+    print("- gemma-7b-it (Gemma 7B)")
+
+

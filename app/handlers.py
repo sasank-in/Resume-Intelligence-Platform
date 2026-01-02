@@ -212,36 +212,29 @@ class LinkedInHandlers:
             scraper = LinkedInScraper(headless=True)
             linkedin_data = scraper.extract_profile(linkedin_url)
             
-            if not linkedin_data:
-                print("[WARNING] LinkedIn extraction returned None, using resume data only")
-                linkedin_data = {
-                    "name": None,
-                    "headline": None,
-                    "location": None,
-                    "about": None,
-                    "experience": [],
-                    "education": [],
-                    "skills": [],
-                    "certifications": []
-                }
+            # Filter out None values from LinkedIn data
+            linkedin_data_clean = {k: v for k, v in linkedin_data.items() if v is not None and v != []}
             
             resume_data = session_data["resume_data"]
-            unified_profile = ProfileBuilder.merge_profiles(resume_data, linkedin_data)
+            unified_profile = ProfileBuilder.merge_profiles(resume_data, linkedin_data_clean if linkedin_data_clean else None)
+            
+            # Clean up None and "N/A" values from unified profile for UI display
+            unified_profile_clean = self._clean_profile_data(unified_profile)
             
             self.session_manager.update_session(session_id, {
-                "linkedin_data": linkedin_data,
-                "unified_profile": unified_profile
+                "linkedin_data": linkedin_data_clean,
+                "unified_profile": unified_profile_clean
             })
             
-            skills_count = len([s for s in unified_profile.get('skills', []) if s and s != "N/A"])
-            exp_count = len([e for e in unified_profile.get('experience', []) if e.get('title') and e.get('title') != "N/A"])
+            skills_count = len([s for s in unified_profile_clean.get('skills', []) if s and s != "N/A"])
+            exp_count = len([e for e in unified_profile_clean.get('experience', []) if e.get('title') and e.get('title') != "N/A"])
             
             print(f"[INFO] Unified profile created with {skills_count} skills and {exp_count} experiences")
             
             return {
                 "message": "LinkedIn profile processed successfully",
-                "linkedin_data": linkedin_data,
-                "unified_profile": unified_profile,
+                "linkedin_data": linkedin_data_clean,
+                "unified_profile": unified_profile_clean,
                 "info": "Merged data from resume + LinkedIn (Resume data used where LinkedIn extraction was incomplete)"
             }
         
@@ -251,15 +244,39 @@ class LinkedInHandlers:
             try:
                 resume_data = session_data["resume_data"]
                 unified_profile = ProfileBuilder.merge_profiles(resume_data, None)
-                self.session_manager.update_session(session_id, {"unified_profile": unified_profile})
+                unified_profile_clean = self._clean_profile_data(unified_profile)
+                self.session_manager.update_session(session_id, {"unified_profile": unified_profile_clean})
                 
                 return {
                     "message": "LinkedIn scraping encountered issues, using resume data instead",
-                    "unified_profile": unified_profile,
+                    "unified_profile": unified_profile_clean,
                     "warning": f"Could not extract LinkedIn data: {str(e)}"
                 }
             except:
                 raise HTTPException(status_code=500, detail=f"LinkedIn extraction failed: {str(e)}")
+    
+    
+    def _clean_profile_data(self, profile: Dict) -> Dict:
+        """Remove None and 'N/A' values from profile for UI display"""
+        cleaned = {}
+        
+        for key, value in profile.items():
+            if key == "experience" or key == "education":
+                # Filter out entries with None/N/A titles
+                cleaned[key] = [
+                    item for item in (value or [])
+                    if item and item.get(list(item.keys())[0]) and item.get(list(item.keys())[0]) != "N/A"
+                ]
+            elif key == "skills" or key == "certifications" or key == "languages":
+                # Filter out None/"N/A" from lists
+                cleaned[key] = [s for s in (value or []) if s and s != "N/A"]
+            elif key == "data_sources":
+                cleaned[key] = value
+            elif value and value != "N/A":
+                # Keep non-None, non-"N/A" values
+                cleaned[key] = value
+        
+        return cleaned
     
     async def skip_linkedin(self, request: ResumeAnalysisRequest) -> Dict:
         """
@@ -281,13 +298,14 @@ class LinkedInHandlers:
             resume_data = session_data["resume_data"]
             
             unified_profile = ProfileBuilder.merge_profiles(resume_data, None)
-            self.session_manager.update_session(session_id, {"unified_profile": unified_profile})
+            unified_profile_clean = self._clean_profile_data(unified_profile)
+            self.session_manager.update_session(session_id, {"unified_profile": unified_profile_clean})
             
             print("[INFO] Resume-only profile created")
             
             return {
                 "message": "Profile created from resume only",
-                "unified_profile": unified_profile
+                "unified_profile": unified_profile_clean
             }
         
         except Exception as e:

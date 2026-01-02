@@ -73,9 +73,10 @@ class ProfileBuilder:
         merged = []
         
         for item in list1 + list2:
-            item_lower = item.lower().strip()
-            if item_lower not in seen and item_lower:
-                seen.add(item_lower)
+            item_clean = item.lower().strip() if item else ""
+            # Filter out None, empty strings, and "N/A" values
+            if item_clean and item_clean != "n/a" and item_clean not in seen:
+                seen.add(item_clean)
                 merged.append(item)
         
         return merged

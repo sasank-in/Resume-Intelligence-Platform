@@ -177,13 +177,18 @@
             <div class="chatbot-header">
                 <h3>AI Career Coach</h3>
                 <div class="chatbot-controls">
-                    <button class="chatbot-menu" id="chatbotMenuBtn" onclick="minimizeChatbot()" title="Minimize">−</button>
-                    <button class="chatbot-close" onclick="closeChatbot()">✕</button>
+                    <button class="chatbot-minimize" onclick="minimizeChatbot()" title="Minimize">−</button>
+                    <button class="chatbot-close" onclick="closeChatbot()" title="Close">✕</button>
                 </div>
             </div>
-            <div class="chatbot-messages" id="chatbotMessages"></div>
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="chatbot-welcome">
+                    <h4>👋 Welcome!</h4>
+                    <p>I'm your AI career coach. Ask me anything about your resume, career path, or job recommendations.</p>
+                </div>
+            </div>
             <div class="chatbot-input-group">
-                <input type="text" id="chatbotInput" class="chatbot-input" placeholder="Ask about your resume..." />
+                <input type="text" id="chatbotInput" class="chatbot-input" placeholder="Ask me about your career..." />
                 <button class="chatbot-send" onclick="sendChatbotMessage()">Send</button>
             </div>
         </div>

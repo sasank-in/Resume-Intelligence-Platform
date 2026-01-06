@@ -302,6 +302,13 @@ function displayAnalysis(analysis) {
 function toggleChatbot() {
     const modal = document.getElementById('chatbotModal');
     modal.classList.toggle('open');
+    
+    // Focus input when opened
+    if (modal.classList.contains('open')) {
+        setTimeout(() => {
+            document.getElementById('chatbotInput').focus();
+        }, 300);
+    }
 }
 
 function closeChatbot() {
@@ -317,6 +324,30 @@ function showChatbotFab() {
     document.getElementById('chatbotBtn').classList.add('show');
 }
 
+// Add typing indicator
+function showTypingIndicator() {
+    const messagesContainer = document.getElementById('chatbotMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'chatbot-typing';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = '<span></span><span></span><span></span>';
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+// Get current time
+function getCurrentTime() {
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
 // Send chatbot message
 async function sendChatbotMessage() {
     const input = document.getElementById('chatbotInput');
@@ -325,15 +356,27 @@ async function sendChatbotMessage() {
     if (!message) return;
     
     const messagesContainer = document.getElementById('chatbotMessages');
+    const sendButton = document.querySelector('.chatbot-send');
+    
+    // Remove welcome message if it exists
+    const welcomeMsg = messagesContainer.querySelector('.chatbot-welcome');
+    if (welcomeMsg) {
+        welcomeMsg.remove();
+    }
     
     // Add user message
     const userMsg = document.createElement('div');
     userMsg.className = 'chatbot-message user';
-    userMsg.textContent = message;
+    userMsg.innerHTML = `${message}<span class="message-time">${getCurrentTime()}</span>`;
     messagesContainer.appendChild(userMsg);
     
     input.value = '';
+    input.disabled = true;
+    sendButton.disabled = true;
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Show typing indicator
+    showTypingIndicator();
     
     try {
         const response = await fetch('/chat', {
@@ -345,27 +388,33 @@ async function sendChatbotMessage() {
             })
         });
         
+        hideTypingIndicator();
+        
         const data = await response.json();
         
         if (response.ok) {
             const aiMsg = document.createElement('div');
             aiMsg.className = 'chatbot-message ai';
-            aiMsg.textContent = data.response;
+            aiMsg.innerHTML = `${data.response}<span class="message-time">${getCurrentTime()}</span>`;
             messagesContainer.appendChild(aiMsg);
         } else {
             const errorMsg = document.createElement('div');
             errorMsg.className = 'chatbot-message ai error';
-            errorMsg.textContent = 'Error: ' + (data.detail || 'Could not get response');
+            errorMsg.innerHTML = `⚠️ ${data.detail || 'Could not get response'}<span class="message-time">${getCurrentTime()}</span>`;
             messagesContainer.appendChild(errorMsg);
         }
     } catch (error) {
+        hideTypingIndicator();
         const errorMsg = document.createElement('div');
         errorMsg.className = 'chatbot-message ai error';
-        errorMsg.textContent = 'Error connecting to server';
+        errorMsg.innerHTML = `⚠️ Error connecting to server<span class="message-time">${getCurrentTime()}</span>`;
         messagesContainer.appendChild(errorMsg);
+    } finally {
+        input.disabled = false;
+        sendButton.disabled = false;
+        input.focus();
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
-    
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
 // Handle Enter key in chatbot input

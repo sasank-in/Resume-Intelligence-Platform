@@ -107,12 +107,24 @@ def generate_detailed_analysis(resume_data: Dict, resume_text: str) -> Dict:
     Returns:
         Dictionary with detailed analysis
     """
+    # Extract key info for better context
+    name = resume_data.get('name', 'Candidate')
+    skills = ', '.join(resume_data.get('skills', [])[:10])
+    experience_summary = ""
+    if resume_data.get('experience'):
+        exp = resume_data['experience'][0]
+        experience_summary = f"{exp.get('title', '')} at {exp.get('company', '')}"
+    
     analysis_prompt = f"""Analyze this resume and provide a comprehensive career analysis in JSON format.
 
-RESUME CONTENT:
+CANDIDATE: {name}
+KEY SKILLS: {skills}
+CURRENT/RECENT ROLE: {experience_summary}
+
+FULL RESUME:
 {resume_text}
 
-Generate a detailed analysis with these fields. Let the AI determine all values based on the resume content:
+Generate a detailed analysis with these fields:
 
 {{
     "overall_score": "Your assessment of overall professional profile (include score and reasoning)",
@@ -120,23 +132,27 @@ Generate a detailed analysis with these fields. Let the AI determine all values 
     "key_strengths": "Top 3 professional strengths identified from the resume",
     "improvement_areas": "3 areas for professional development",
     "industry_fit": "Industries and sectors best suited for this candidate",
+    "technical_skills_assessment": "Evaluation of technical competencies",
+    "soft_skills_assessment": "Evaluation of soft skills and leadership",
+    "competitive_advantage": "What makes this candidate stand out",
     "next_career_moves": "3 recommended next career steps",
-    "suggested_job_summary": "A concise 3-4 sentence job summary suitable for a job application based on the resume"
+    "salary_expectations": "Estimated salary range based on experience and skills",
+    "suggested_job_summary": "Write a compelling 3-4 sentence professional summary for job applications that highlights: 1) Current role/expertise, 2) Key technical skills, 3) Years of experience, 4) Notable achievements or specializations. Make it specific to THIS candidate's actual background."
 }}
 
-IMPORTANT:
-- Generate ALL values based on the resume content
-- Do NOT use any pre-defined values or templates
-- Do NOT use any fixed context
-- Analyze the ACTUAL resume and generate UNIQUE insights
-- Be specific and reference actual skills, roles, companies, achievements
-- Provide actionable, personalized recommendations
+CRITICAL INSTRUCTIONS:
+- Generate ALL values based on the ACTUAL resume content
+- Do NOT use generic templates or placeholder text
+- Be SPECIFIC - reference actual skills, roles, companies, achievements from the resume
+- For suggested_job_summary: Write a unique, personalized summary that could be used on LinkedIn or job applications
+- Make the summary compelling and highlight what makes this candidate valuable
 - Return ONLY valid JSON, no other text"""
     
     response = client.chat.completions.create(
         model=GROQ_MODEL,
         messages=[{"role": "user", "content": analysis_prompt}],
-        temperature=0.7
+        temperature=0.7,
+        max_tokens=2000
     )
     response_text = response.choices[0].message.content.strip()
     
@@ -146,16 +162,29 @@ IMPORTANT:
         elif "```" in response_text:
             response_text = response_text.split("```")[1].split("```")[0].strip()
         
-        return json.loads(response_text)
-    except json.JSONDecodeError:
+        analysis = json.loads(response_text)
+        
+        # Ensure suggested_job_summary is not just the resume summary
+        if analysis.get('suggested_job_summary') == resume_data.get('summary'):
+            # Generate a better one if it's just copying
+            analysis['suggested_job_summary'] = f"{name} is a {experience_summary} with expertise in {skills}. " + resume_data.get('summary', '')
+        
+        return analysis
+    except json.JSONDecodeError as e:
+        print(f"Analysis JSON parse error: {e}")
+        # Return better fallback with actual resume data
         return {
-            "overall_score": "Analysis generated",
-            "career_trajectory": response_text[:150] if response_text else "See profile data above",
-            "key_strengths": resume_data.get('summary', 'Professional expertise'),
-            "improvement_areas": "Continuous learning recommended",
-            "industry_fit": "Multiple sectors",
-            "next_career_moves": "Senior progression or specialization",
-            "suggested_job_summary": resume_data.get('summary', 'Professional summary based on resume')
+            "overall_score": "Strong professional profile",
+            "career_trajectory": f"Experienced professional with background in {experience_summary}",
+            "key_strengths": f"Expertise in {skills}",
+            "improvement_areas": "Continuous learning and skill development recommended",
+            "industry_fit": "Technology and related sectors",
+            "technical_skills_assessment": f"Proficient in {skills}",
+            "soft_skills_assessment": "Strong communication and teamwork abilities",
+            "competitive_advantage": f"Specialized experience in {experience_summary}",
+            "next_career_moves": "Senior roles, leadership positions, or specialized consulting",
+            "salary_expectations": "Competitive market rate based on experience level",
+            "suggested_job_summary": f"{name} is an experienced professional currently working as {experience_summary}. With strong expertise in {skills}, they bring valuable technical knowledge and proven track record to any organization. Seeking opportunities to leverage skills in challenging roles."
         }
 
 

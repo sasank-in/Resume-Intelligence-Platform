@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Resume Analysis Results - AI-powered insights">
+    <title>Analysis Results - Resume Analyzer Pro</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg class="brand-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                    <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#1e40af"/>
+                            <stop offset="100%" stop-color="#0284c7"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="brand-name">Resume Analyzer Pro</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="#linkedinSection" class="nav-link">LinkedIn</a>
+                <a href="#analysisSection" class="nav-link">Analysis</a>
+                <a href="#jobRecommendationsSection" class="nav-link">Jobs</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-container">
+            
+            <!-- LinkedIn Section -->
+            <section class="section" id="linkedinSection" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Enhance Your Profile</h2>
+                    <p class="section-description">Add your LinkedIn profile for comprehensive analysis (Optional)</p>
+                </div>
+                
+                <div class="linkedin-card">
+                    <div class="linkedin-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+                            <path d="M27.26 27.27h-4.73v-7.41c0-1.77-.03-4.04-2.46-4.04-2.47 0-2.85 1.93-2.85 3.92v7.53h-4.73V12h4.54v2.08h.06c.63-1.2 2.18-2.47 4.48-2.47 4.79 0 5.68 3.15 5.68 7.26v8.4zM7.12 9.92c-1.52 0-2.75-1.23-2.75-2.75S5.6 4.42 7.12 4.42s2.75 1.23 2.75 2.75-1.23 2.75-2.75 2.75zm2.37 17.35H4.75V12h4.74v15.27zM29.63 0H2.36C1.05 0 0 1.03 0 2.3v27.4C0 30.97 1.05 32 2.36 32h27.27c1.31 0 2.37-1.03 2.37-2.3V2.3C32 1.03 30.94 0 29.63 0z"/>
+                        </svg>
+                    </div>
+                    <div class="linkedin-content">
+                        <h3>Connect Your LinkedIn Profile</h3>
+                        <p>Merge your LinkedIn data with your resume for better job recommendations</p>
+                        <div class="linkedin-input-group">
+                            <input type="url" id="linkedinUrl" class="input-field" placeholder="https://www.linkedin.com/in/your-profile">
+                            <button class="btn btn-primary" onclick="addLinkedInProfile()">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Add LinkedIn
+                            </button>
+                            <button class="btn btn-secondary" onclick="skipLinkedIn()">Skip</button>
+                        </div>
+                        <p id="linkedinStatus" class="status-message"></p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Profile Section -->
+            <section class="section" id="profileSection" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Candidate Profile</h2>
+                    <p class="section-description">Comprehensive overview of professional background</p>
+                </div>
+                
+                <div class="profile-card-modern">
+                    <div class="profile-header-modern">
+                        <div class="profile-avatar">
+                            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                                <circle cx="32" cy="32" r="32" fill="url(#avatarGradient)"/>
+                                <path d="M32 32c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0 4c-5.33 0-16 2.67-16 8v4h32v-4c0-5.33-10.67-8-16-8z" fill="white"/>
+                                <defs>
+                                    <linearGradient id="avatarGradient" x1="0" y1="0" x2="64" y2="64">
+                                        <stop offset="0%" stop-color="#1e40af"/>
+                                        <stop offset="100%" stop-color="#0284c7"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="candidateName" class="profile-name">-</h3>
+                            <p id="candidateHeadline" class="profile-title">-</p>
+                            <div class="profile-meta">
+                                <span class="meta-item">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span id="candidateLocation">-</span>
+                                </span>
+                                <span class="meta-item">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                    </svg>
+                                    <span id="candidateEmail">-</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-summary">
+                        <h4>Professional Summary</h4>
+                        <p id="candidateSummary">-</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section class="section" id="skillsSection" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Skills & Expertise</h2>
+                    <p class="section-description">Technical and professional competencies</p>
+                </div>
+                <div class="skills-container" id="skillsGrid"></div>
+            </section>
+
+            <!-- Experience Section -->
+            <section class="section" id="experienceSection" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Professional Experience</h2>
+                    <p class="section-description">Career history and achievements</p>
+                </div>
+                <div class="timeline-modern" id="experienceTimeline"></div>
+            </section>
+
+            <!-- Education Section -->
+            <section class="section" id="educationSection" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Education</h2>
+                    <p class="section-description">Academic background and qualifications</p>
+                </div>
+                <div class="education-grid-modern" id="educationGrid"></div>
+            </section>
+
+            <!-- AI Analysis Section -->
+            <section class="section" id="analysisSection" style="display: none;">
+                <div class="section-header-enhanced">
+                    <div class="section-icon-badge">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="section-title">AI Career Analysis</h2>
+                        <p class="section-description">Comprehensive AI-powered insights about your professional profile</p>
+                    </div>
+                </div>
+                <div class="analysis-grid-modern" id="analysisGrid"></div>
+            </section>
+
+            <!-- Professional Summary -->
+            <section class="section" id="suggestedJobSection" style="display: none;">
+                <div class="section-header-enhanced">
+                    <div class="section-icon-badge">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Professional Summary</h2>
+                        <p class="section-description">AI-enhanced summary highlighting your key qualifications and experience</p>
+                    </div>
+                </div>
+                <div class="job-summary-card">
+                    <p id="suggestedJobSummary">-</p>
+                </div>
+            </section>
+
+            <!-- Job Recommendations Section -->
+            <section class="section" id="jobRecommendationsSection" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Personalized Job Recommendations</h2>
+                    <p class="section-description">AI-matched career opportunities based on your profile</p>
+                </div>
+                <button class="btn btn-primary btn-large" onclick="getJobRecommendations()" id="getRecommendationsBtn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                        <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"/>
+                    </svg>
+                    Generate Job Recommendations
+                </button>
+                <div id="jobRecommendationsContent"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p class="footer-text">© 2024 Resume Analyzer Pro. Powered by Advanced AI Technology.</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Chatbot Button -->
+    <button class="chatbot-fab" id="chatbotBtn" onclick="toggleChatbot()" title="AI Career Assistant" style="display: none;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+    </button>
+
+    <!-- Chatbot Modal -->
+    <div class="chatbot-modal" id="chatbotModal">
+        <div class="chatbot-container">
+            <div class="chatbot-header">
+                <div class="chatbot-header-content">
+                    <div class="chatbot-avatar">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                    </div>
+                    <div class="chatbot-header-info">
+                        <h3>AI Career Assistant</h3>
+                        <span class="chatbot-status">
+                            <span class="status-dot"></span>
+                            Online
+                        </span>
+                    </div>
+                </div>
+                <div class="chatbot-controls">
+                    <button class="chatbot-control-btn" onclick="minimizeChatbot()" title="Minimize">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </button>
+                    <button class="chatbot-control-btn" onclick="closeChatbot()" title="Close">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="chatbot-welcome">
+                    <div class="welcome-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M9 12l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <h4>Welcome to AI Career Assistant</h4>
+                    <p>I'm here to help you with resume analysis, career guidance, and job recommendations. How can I assist you today?</p>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Tell me about my resume analysis')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            Resume Analysis
+                        </button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('What are my career strengths?')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            Career Strengths
+                        </button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Show me job recommendations')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                            </svg>
+                            Job Matches
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="chatbot-input-container">
+                <div class="chatbot-input-group">
+                    <input type="text" id="chatbotInput" class="chatbot-input" placeholder="Type your message..." />
+                    <button class="chatbot-send" onclick="sendChatbotMessage()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="chatbot-footer-text">
+                    Powered by AI • Press Enter to send
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/analysis.js"></script>
+</body>
+</html>

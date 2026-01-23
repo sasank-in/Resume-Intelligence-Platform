@@ -1,200 +1,233 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Resume Summarizer - AI Powered Candidate Analysis</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional AI-powered resume analysis and job recommendation system">
+    <title>Resume Analyzer Pro - AI Career Intelligence Platform</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📄 Resume Analyzer</h1>
-            <p class="subtitle">AI-Powered Candidate Profile & Assessment</p>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg class="brand-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                    <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#1e40af"/>
+                            <stop offset="100%" stop-color="#0284c7"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="brand-name">Resume Analyzer Pro</span>
+            </div>
+            <div class="nav-links">
+                <a href="#upload" class="nav-link">Upload</a>
+                <a href="#analysis" class="nav-link">Analysis</a>
+                <a href="#recommendations" class="nav-link">Jobs</a>
+            </div>
         </div>
-        
-        <div class="content">
-            <!-- Upload Section -->
-            <div class="section-title">📤 Upload Resume</div>
-            <div class="upload-section">
-                <p style="margin-bottom: 25px; color: #667eea; font-size: 16px; font-weight: 500;">
-                    Upload a PDF resume to get instant AI analysis
-                </p>
-                <input type="file" id="resumeFile" accept=".pdf" hidden>
-                <button class="upload-btn" onclick="document.getElementById('resumeFile').click()">
-                    📁 Choose Resume (PDF)
-                </button>
-                <p id="fileName" class="file-name"></p>
-            </div>
-            
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p style="margin-top: 12px;">Analyzing resume...</p>
-            </div>
-            
-            <div id="status" class="status"></div>
-            
-            <!-- LinkedIn Section -->
-            <div class="linkedin-section" id="linkedinSection" style="display: none;">
-                <div class="section-title">🔗 LinkedIn Profile (Optional)</div>
-                <div class="linkedin-card">
-                    <p style="margin-bottom: 20px; color: #667eea;">
-                        Add your LinkedIn profile for enhanced job recommendations
-                    </p>
-                    <div class="linkedin-input-group">
-                        <input type="text" id="linkedinUrl" placeholder="https://www.linkedin.com/in/your-profile" class="linkedin-input">
-                        <button class="btn-primary" onclick="addLinkedInProfile()">Add LinkedIn</button>
-                        <button class="btn-secondary" onclick="skipLinkedIn()">Skip</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Optimize Your Career with AI Analysis</h1>
+                <p class="hero-subtitle">Transform your resume into actionable career insights with advanced AI analysis</p>
+                <div class="hero-features">
+                    <div class="feature-badge">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Resume Analysis</span>
                     </div>
-                    <p id="linkedinStatus" class="linkedin-status"></p>
+                    <div class="feature-badge">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                        </svg>
+                        <span>LinkedIn Integration</span>
+                    </div>
+                    <div class="feature-badge">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                            <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"/>
+                        </svg>
+                        <span>Job Matching</span>
+                    </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-container">
             
-            <!-- Profile Section -->
-            <div class="profile-section" id="profileSection" style="display: none;">
-                <div class="section-title">👤 Candidate Profile</div>
-                <div class="profile-card">
-                    <div class="profile-header">
-                        <div>
-                            <h2 id="candidateName">-</h2>
-                            <p class="headline" id="candidateHeadline">-</p>
-                            <p class="location-phone">
-                                <span id="candidateLocation">-</span> | 
-                                <span id="candidateEmail">-</span>
-                            </p>
+            <!-- Upload Section -->
+            <section class="section" id="upload">
+                <div class="section-header">
+                    <h2 class="section-title">Upload Your Resume</h2>
+                    <p class="section-description">Upload your PDF resume to begin the AI-powered analysis</p>
+                </div>
+                
+                <div class="upload-with-features">
+                    <!-- Upload Card -->
+                    <div class="upload-card">
+                        <input type="file" id="resumeFile" accept=".pdf" hidden>
+                        <div class="upload-area" onclick="document.getElementById('resumeFile').click()">
+                            <svg class="upload-icon" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <path d="M24 8v24M24 8l-8 8M24 8l8 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 32v4a4 4 0 004 4h24a4 4 0 004-4v-4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                            <h3 class="upload-title">Drop your resume here or click to browse</h3>
+                            <p class="upload-subtitle">Supports PDF files up to 10MB</p>
+                            <button class="btn btn-primary" type="button">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Choose File
+                            </button>
+                        </div>
+                        <p id="fileName" class="file-name"></p>
+                    </div>
+
+                    <!-- How It Works -->
+                    <div class="how-it-works-card">
+                        <h3 class="how-it-works-title">How it works</h3>
+                        <p class="how-it-works-description">Our AI-powered system analyzes your resume in three intelligent steps</p>
+                        
+                        <div class="features-list">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>AI Parsing</h4>
+                                    <p>Our neural networks extract your experience, skills, and education details with 99% accuracy.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                    </svg>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>Keyword Matching</h4>
+                                    <p>Comparing your profile against 50,000+ industry-specific keywords and top job descriptions.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>Smart Scoring</h4>
+                                    <p>Get a comprehensive ATS-compatibility score and actionable steps to improve your ranking.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <p class="summary" id="candidateSummary">-</p>
                 </div>
-            </div>
-            
-            <!-- Skills Section -->
-            <div class="skills-section" id="skillsSection" style="display: none;">
-                <div class="section-title">🎯 Skills & Expertise</div>
-                <div class="skills-grid" id="skillsGrid"></div>
-            </div>
-            
-            <!-- Experience Timeline -->
-            <div class="experience-section" id="experienceSection" style="display: none;">
-                <div class="section-title">💻 Professional Experience</div>
-                <div class="timeline" id="experienceTimeline"></div>
-            </div>
-            
-            <!-- Education Section -->
-            <div class="education-section" id="educationSection" style="display: none;">
-                <div class="section-title">🎓 Education</div>
-                <div class="education-grid" id="educationGrid"></div>
-            </div>
 
-            <!-- Certifications & Languages Section -->
-            <div class="additional-section" id="certificationsLanguagesSection" style="display: none;">
-                <div class="section-title">🏆 Certifications & Languages</div>
-                <div class="additional-grid">
-                    <div id="certificationsBox" style="display: none;">
-                        <h4>🎖️ Certifications</h4>
-                        <ul id="certificationsList"></ul>
+                <!-- Statistics Banner (Moved to Bottom) -->
+                <div class="stats-banner">
+                    <div class="stats-header">
+                        <h3>Join 50,000+ Professionals</h3>
                     </div>
-                    <div id="languagesBox" style="display: none;">
-                        <h4>🌍 Languages</h4>
-                        <ul id="languagesList"></ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Resume Strengths & Recommendations -->
-            <div class="resume-details-section" id="resumeDetailsSection" style="display: none;">
-                <div class="section-title">✨ Profile Strengths & Recommendations</div>
-                <div class="details-grid">
-                    <div id="strengthsBox" style="display: none;">
-                        <h4>💪 Strengths</h4>
-                        <ul id="strengthsList"></ul>
-                    </div>
-                    <div id="recommendationsBox" style="display: none;">
-                        <h4>💡 Recommendations</h4>
-                        <ul id="recommendationsList"></ul>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">95%</div>
+                            <div class="stat-label">Success Rate</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">500+</div>
+                            <div class="stat-label">Job Categories</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">10s</div>
+                            <div class="stat-label">Fast Analysis</div>
+                        </div>
+                        <div class="stat-item highlight">
+                            <div class="stat-value">FREE</div>
+                            <div class="stat-label">First Analysis</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Analysis Section -->
-            <div class="analysis-section" id="analysisSection" style="display: none;">
-                <div class="section-title">📊 AI Analysis & Career Insights</div>
                 
-                <div class="analysis-grid" id="analysisGrid">
-                    <!-- Cards will be dynamically generated here -->
-                </div>
-            </div>
-
-            <!-- Suggested Job Summary Section -->
-            <div class="analysis-section" id="suggestedJobSection" style="display: none;">
-                <div class="section-title">🧾 Suggested Job Summary</div>
-                <div class="analysis-card full-width">
-                    <p id="suggestedJobSummary">-</p>
-                </div>
-            </div>
-            
-            <!-- Job Recommendations Section -->
-            <div class="recommendations-section" id="jobRecommendationsSection" style="display: none;">
-                <div class="section-title">🎯 Job Recommendations</div>
-                <button class="btn-primary" onclick="getJobRecommendations()" id="getRecommendationsBtn">
-                    Get Job Recommendations
-                </button>
-                <div id="jobRecommendationsContent" style="margin-top: 20px;"></div>
-            </div>
-
-            <!-- Chat Section - Hidden by default -->
-            <div class="chat-section" id="chatSection" style="display: none;">
-            </div>
-            
-            <!-- Certifications & Languages (Old - to be removed) -->
-            <div class="additional-section" id="additionalSection" style="display: none;">
-                <div class="section-title">🏆 Certifications & Languages</div>
-                <div class="additional-grid">
-                    <div id="certificationsBox">
-                        <h4>Certifications</h4>
-                        <ul id="certificationsList"></ul>
+                <div class="loading-overlay" id="loading" style="display: none;">
+                    <div class="loading-content">
+                        <div class="loading-animation">
+                            <div class="loading-circle">
+                                <svg class="loading-svg" viewBox="0 0 100 100">
+                                    <defs>
+                                        <linearGradient id="loadingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#1e40af"/>
+                                            <stop offset="100%" stop-color="#0284c7"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <circle class="loading-circle-bg" cx="50" cy="50" r="45"/>
+                                    <circle class="loading-circle-progress" cx="50" cy="50" r="45"/>
+                                </svg>
+                                <div class="loading-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="loading-title">Analyzing Your Resume</h3>
+                        <p class="loading-text">Our AI is processing your document...</p>
+                        <div class="loading-steps">
+                            <div class="loading-step active" id="step1">
+                                <div class="step-icon">⟳</div>
+                                <span>Extracting Information</span>
+                            </div>
+                            <div class="loading-step" id="step2">
+                                <div class="step-icon">⟳</div>
+                                <span>Analyzing Skills</span>
+                            </div>
+                            <div class="loading-step" id="step3">
+                                <div class="step-icon">⟳</div>
+                                <span>Generating Insights</span>
+                            </div>
+                        </div>
                     </div>
-                    <div id="languagesBox">
-                        <h4>Languages</h4>
-                        <ul id="languagesList"></ul>
-                    </div>
                 </div>
+                
+                <div id="status" class="alert" style="display: none;"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p class="footer-text">© 2024 Resume Analyzer Pro. Powered by Advanced AI Technology.</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Contact</a>
             </div>
         </div>
-    </div>
+    </footer>
 
-    <!-- Floating Chatbot Button -->
-    <button class="chatbot-fab" id="chatbotBtn" onclick="toggleChatbot()" title="Chat with AI Coach">
-        💬
-    </button>
-
-    <!-- Chatbot Modal -->
-    <div class="chatbot-modal" id="chatbotModal">
-        <div class="chatbot-container">
-            <div class="chatbot-header">
-                <h3>AI Career Coach</h3>
-                <div class="chatbot-controls">
-                    <button class="chatbot-minimize" onclick="minimizeChatbot()" title="Minimize">−</button>
-                    <button class="chatbot-close" onclick="closeChatbot()" title="Close">✕</button>
-                </div>
-            </div>
-            <div class="chatbot-messages" id="chatbotMessages">
-                <div class="chatbot-welcome">
-                    <h4>👋 Welcome!</h4>
-                    <p>I'm your AI career coach. Ask me anything about your resume, career path, or job recommendations.</p>
-                </div>
-            </div>
-            <div class="chatbot-input-group">
-                <input type="text" id="chatbotInput" class="chatbot-input" placeholder="Ask me about your career..." />
-                <button class="chatbot-send" onclick="sendChatbotMessage()">Send</button>
-            </div>
-        </div>
-    </div>
     
     <script src="/static/script.js"></script>
 </body>
 </html>
-

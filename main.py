@@ -24,10 +24,6 @@ app = FastAPI(
     version=APP_VERSION
 )
 
-# Mount static files
-if os.path.exists(STATIC_DIR):
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
 # Initialize session manager
 session_manager = SessionManager(timeout=REQUEST_TIMEOUT)
 
@@ -48,6 +44,19 @@ async def home():
         raise HTTPException(
             status_code=404,
             detail="Static files not found. Please ensure static/index.html exists."
+        )
+
+
+@app.get("/analysis.html", response_class=HTMLResponse)
+async def analysis_page():
+    """Serve analysis page"""
+    try:
+        with open("static/analysis.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="Analysis page not found. Please ensure static/analysis.html exists."
         )
 
 
@@ -118,6 +127,11 @@ async def recommend_jobs(request: JobRecommendationRequest):
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "service": APP_TITLE}
+
+
+# Mount static files AFTER all routes are defined
+if os.path.exists(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 if __name__ == "__main__":

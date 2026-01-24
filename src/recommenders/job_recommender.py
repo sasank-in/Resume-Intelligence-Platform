@@ -74,22 +74,22 @@ IMPORTANT:
             return result
         
         except Exception as e:
-            print(f"❌ Error generating recommendations: {str(e)}")
+            print(f"Error generating recommendations: {str(e)}")
             return self._fallback_recommendations(unified_profile)
     
     def _build_profile_context(self, profile: Dict) -> str:
         """Build a concise profile context for AI"""
         context = f"""
-Name: {profile.get('name', 'N/A')}
-Headline: {profile.get('headline', 'N/A')}
-Location: {profile.get('location', 'N/A')}
+                Name: {profile.get('name', 'N/A')}
+                Headline: {profile.get('headline', 'N/A')}
+                Location: {profile.get('location', 'N/A')}
 
-Summary: {profile.get('summary', 'N/A')[:500]}
+                Summary: {profile.get('summary', 'N/A')[:500]}
 
-Skills ({len(profile.get('skills', []))}): {', '.join(profile.get('skills', [])[:15])}
+                Skills ({len(profile.get('skills', []))}): {', '.join(profile.get('skills', [])[:15])}
 
-Experience:
-"""
+                Experience:
+                """
         
         for exp in profile.get('experience', [])[:3]:
             context += f"- {exp.get('title', 'N/A')} at {exp.get('company', 'N/A')} ({exp.get('duration', 'N/A')})\n"

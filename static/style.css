@@ -1149,6 +1149,37 @@ body {
     font-weight: 700;
 }
 
+/* Merged Section Styles */
+.merged-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.merged-section:last-child {
+    margin-bottom: 0;
+}
+
+.merged-subtitle {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.merged-section p {
+    margin: 0;
+    color: var(--gray-700);
+    line-height: 1.8;
+}
+
+.section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--gray-300) 50%, transparent 100%);
+    margin: var(--spacing-xl) 0;
+}
+
 .analysis-score-badge {
     display: inline-flex;
     align-items: center;

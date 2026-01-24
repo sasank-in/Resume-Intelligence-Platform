@@ -129,21 +129,21 @@ Generate a detailed analysis with these fields:
 {{
     "overall_score": "Your assessment of overall professional profile (include score and reasoning)",
     "career_trajectory": "Analysis of career progression and growth pattern",
-    "key_strengths": "Top 3 professional strengths identified from the resume",
-    "improvement_areas": "3 areas for professional development",
-    "industry_fit": "Industries and sectors best suited for this candidate",
-    "technical_skills_assessment": "Evaluation of technical competencies",
-    "soft_skills_assessment": "Evaluation of soft skills and leadership",
+    "key_strengths": "Top 3 professional strengths identified from the resume (as a single paragraph)",
+    "improvement_areas": "Areas for professional development and skill enhancement (as a single paragraph)",
+    "industry_fit": "Industries and sectors best suited for this candidate (as a single paragraph)",
     "competitive_advantage": "What makes this candidate stand out",
-    "next_career_moves": "3 recommended next career steps",
+    "next_career_moves": "3 recommended next career steps (as a single paragraph)",
     "salary_expectations": "Estimated salary range based on experience and skills",
-    "suggested_job_summary": "Write a compelling 3-4 sentence professional summary for job applications that highlights: 1) Current role/expertise, 2) Key technical skills, 3) Years of experience, 4) Notable achievements or specializations. Make it specific to THIS candidate's actual background."
+    "recommendations_summary": "Comprehensive career recommendations and action items",
+    "suggested_job_summary": "A concise 3-4 sentence job summary suitable for a job application based on the resume"
 }}
 
 CRITICAL INSTRUCTIONS:
 - Generate ALL values based on the ACTUAL resume content
 - Do NOT use generic templates or placeholder text
 - Be SPECIFIC - reference actual skills, roles, companies, achievements from the resume
+- ALL fields should be STRINGS (not arrays) - write as paragraphs or comma-separated text
 - For suggested_job_summary: Write a unique, personalized summary that could be used on LinkedIn or job applications
 - Make the summary compelling and highlight what makes this candidate valuable
 - Return ONLY valid JSON, no other text"""
@@ -164,6 +164,11 @@ CRITICAL INSTRUCTIONS:
         
         analysis = json.loads(response_text)
         
+        # Convert any array values to strings for consistent display
+        for key, value in analysis.items():
+            if isinstance(value, list):
+                analysis[key] = ', '.join(str(item) for item in value)
+        
         # Ensure suggested_job_summary is not just the resume summary
         if analysis.get('suggested_job_summary') == resume_data.get('summary'):
             # Generate a better one if it's just copying
@@ -179,11 +184,10 @@ CRITICAL INSTRUCTIONS:
             "key_strengths": f"Expertise in {skills}",
             "improvement_areas": "Continuous learning and skill development recommended",
             "industry_fit": "Technology and related sectors",
-            "technical_skills_assessment": f"Proficient in {skills}",
-            "soft_skills_assessment": "Strong communication and teamwork abilities",
             "competitive_advantage": f"Specialized experience in {experience_summary}",
             "next_career_moves": "Senior roles, leadership positions, or specialized consulting",
             "salary_expectations": "Competitive market rate based on experience level",
+            "recommendations_summary": "Focus on building leadership skills, expanding technical expertise, and networking within the industry",
             "suggested_job_summary": f"{name} is an experienced professional currently working as {experience_summary}. With strong expertise in {skills}, they bring valuable technical knowledge and proven track record to any organization. Seeking opportunities to leverage skills in challenging roles."
         }
 
@@ -208,16 +212,16 @@ def generate_chat_response(resume_data: Dict, message: str, chat_history: list) 
     
     prompt = f"""You are a friendly career coach. Answer the user's question about their resume.
 
-Candidate: {resume_data.get('name', 'Candidate')}
-Summary: {resume_data.get('summary', 'Professional')}
-Skills: {', '.join(resume_data.get('skills', [])[:10])}
-Roles: {', '.join([exp.get('title', '') for exp in resume_data.get('experience', [])[:3]])}
+        Candidate: {resume_data.get('name', 'Candidate')}
+        Summary: {resume_data.get('summary', 'Professional')}
+        Skills: {', '.join(resume_data.get('skills', [])[:10])}
+        Roles: {', '.join([exp.get('title', '') for exp in resume_data.get('experience', [])[:3]])}
 
-{history_context}
+        {history_context}
 
-User: {message}
+        User: {message}
 
-Provide a helpful, conversational response (2-3 sentences). Be supportive and actionable."""
+        Provide a helpful, conversational response (2-3 sentences). Be supportive and actionable."""
     
     response = client.chat.completions.create(
         model=GROQ_MODEL,

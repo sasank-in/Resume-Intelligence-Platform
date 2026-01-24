@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadAnalysisData() {
     try {
+        console.log('[DEBUG] Loading analysis data for session:', sessionId);
+        
         // Fetch analysis data
         const response = await fetch('/get-analysis', {
             method: 'POST',
@@ -22,16 +24,20 @@ async function loadAnalysisData() {
             body: JSON.stringify({ session_id: sessionId })
         });
         
+        console.log('[DEBUG] Response status:', response.status);
         const data = await response.json();
+        console.log('[DEBUG] Response data:', data);
         
         if (response.ok) {
             // Display resume data if available
             if (data.resume_data) {
+                console.log('[DEBUG] Displaying resume data');
                 displayResumeData(data.resume_data);
             }
             
             // Display analysis
             if (data.analysis) {
+                console.log('[DEBUG] Displaying analysis');
                 displayAnalysis(data.analysis);
             }
             
@@ -47,6 +53,7 @@ async function loadAnalysisData() {
         }
     } catch (error) {
         console.error('Error loading analysis:', error);
+        console.error('Error stack:', error.stack);
         alert('Error loading analysis data. Please try again.');
         window.location.href = '/';
     }
@@ -108,8 +115,48 @@ function displayResumeData(data) {
 }
 
 function displayAnalysis(analysis) {
-    const analysisGrid = document.getElementById('analysisGrid');
-    analysisGrid.innerHTML = '';
+    try {
+        console.log('[DEBUG] displayAnalysis called with:', analysis);
+        const analysisGrid = document.getElementById('analysisGrid');
+        analysisGrid.innerHTML = '';
+        
+        // Helper function to combine Development Areas and Next Career Moves
+        function combineDevAndCareerMoves(improvementAreas, nextCareerMoves) {
+            if (!improvementAreas && !nextCareerMoves) return null;
+            
+            let combined = '';
+            
+            // Handle improvement areas (can be string or array)
+            if (improvementAreas) {
+                let areasText = '';
+                if (Array.isArray(improvementAreas)) {
+                    areasText = improvementAreas.join(', ');
+                } else if (typeof improvementAreas === 'string' && improvementAreas.trim() && improvementAreas !== '-') {
+                    areasText = improvementAreas;
+                }
+                
+                if (areasText) {
+                    combined += `<div class="merged-section"><h4 class="merged-subtitle">🎯 Development Areas</h4><p>${areasText}</p></div>`;
+                }
+            }
+            
+            // Handle next career moves (can be string or array)
+            if (nextCareerMoves) {
+                let movesText = '';
+                if (Array.isArray(nextCareerMoves)) {
+                    movesText = nextCareerMoves.join(', ');
+                } else if (typeof nextCareerMoves === 'string' && nextCareerMoves.trim() && nextCareerMoves !== '-') {
+                    movesText = nextCareerMoves;
+                }
+                
+                if (movesText) {
+                    if (combined) combined += '<div class="section-divider"></div>';
+                    combined += `<div class="merged-section"><h4 class="merged-subtitle">🚀 Next Career Moves</h4><p>${movesText}</p></div>`;
+                }
+            }
+            
+            return combined || null;
+        }
     
     const analysisCards = [
         {
@@ -132,10 +179,11 @@ function displayAnalysis(analysis) {
             value: analysis.key_strengths
         },
         {
-            key: 'improvement_areas',
+            key: 'development_and_career_moves',
             icon: '🎯',
-            title: 'Development Areas',
-            value: analysis.improvement_areas
+            title: 'Development Areas & Next Career Moves',
+            value: combineDevAndCareerMoves(analysis.improvement_areas, analysis.next_career_moves) || 'Development areas and career moves analysis',
+            fullWidth: true
         },
         {
             key: 'industry_fit',
@@ -144,28 +192,10 @@ function displayAnalysis(analysis) {
             value: analysis.industry_fit
         },
         {
-            key: 'technical_skills_assessment',
-            icon: '💻',
-            title: 'Technical Skills',
-            value: analysis.technical_skills_assessment
-        },
-        {
-            key: 'soft_skills_assessment',
-            icon: '🤝',
-            title: 'Soft Skills',
-            value: analysis.soft_skills_assessment
-        },
-        {
             key: 'competitive_advantage',
             icon: '🚀',
             title: 'Competitive Advantage',
             value: analysis.competitive_advantage
-        },
-        {
-            key: 'next_career_moves',
-            icon: '🎓',
-            title: 'Next Career Moves',
-            value: analysis.next_career_moves
         },
         {
             key: 'salary_expectations',
@@ -183,16 +213,18 @@ function displayAnalysis(analysis) {
     ];
     
     analysisCards.forEach(card => {
+        console.log('[DEBUG] Processing card:', card.key, 'value:', card.value);
+        
         if (!card.value || card.value === '-' || card.value === '' || 
-            card.value.includes('Analysis pending') || 
-            card.value.includes('unavailable')) {
+            (typeof card.value === 'string' && (card.value.includes('Analysis pending') || card.value.includes('unavailable')))) {
+            console.log('[DEBUG] Skipping card:', card.key);
             return;
         }
         
         const cardElement = document.createElement('div');
         cardElement.className = `analysis-card ${card.fullWidth ? 'full-width' : ''}`;
         
-        let contentHTML = `<p>${card.value}</p>`;
+        let contentHTML = '';
         
         if (card.type === 'score') {
             contentHTML = `
@@ -203,6 +235,11 @@ function displayAnalysis(analysis) {
                     ${card.value}
                 </div>
             `;
+        } else if (card.key === 'development_and_career_moves') {
+            // For merged card, value already contains HTML
+            contentHTML = card.value;
+        } else {
+            contentHTML = `<p>${card.value}</p>`;
         }
         
         cardElement.innerHTML = `
@@ -231,6 +268,13 @@ function displayAnalysis(analysis) {
         !suggestedJob.includes('pending') && !suggestedJob.includes('unavailable')) {
         suggestedJobSummaryEl.textContent = suggestedJob;
         suggestedJobSection.style.display = 'block';
+    }
+    
+    console.log('[DEBUG] displayAnalysis completed successfully');
+    } catch (error) {
+        console.error('[ERROR] displayAnalysis failed:', error);
+        console.error('[ERROR] Stack:', error.stack);
+        throw error;
     }
 }
 

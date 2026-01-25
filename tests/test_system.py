@@ -48,6 +48,9 @@ def test_env():
     """Test if environment variables are set"""
     print("[TEST] Checking environment variables...")
     
+    # Load environment variables
+    load_dotenv()
+    
     api_key = os.getenv('GROQ_API_KEY')
     if api_key:
         print(f"  [PASS] GROQ_API_KEY found (length: {len(api_key)})")
@@ -63,6 +66,7 @@ def test_chromedriver():
     """Test if ChromeDriver is available"""
     print("[TEST] Checking ChromeDriver...")
     try:
+        from selenium import webdriver
         from selenium.webdriver.chrome.options import Options
         
         chrome_options = Options()
@@ -101,9 +105,10 @@ def test_groq_api():
         client = Groq(api_key=api_key)
         
         response = client.chat.completions.create(
-            model="openai/gpt-oss-120b",
+            model="llama3-8b-8192",
             messages=[{"role": "user", "content": "Say 'API working' if you can read this"}],
-            temperature=0.7
+            temperature=0.7,
+            max_tokens=50
         )
         
         if response.choices[0].message.content:

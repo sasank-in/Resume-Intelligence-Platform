@@ -14,7 +14,7 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-brand">
+            <a href="/" class="nav-brand">
                 <svg class="brand-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
                     <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
                     <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
@@ -26,11 +26,14 @@
                     </defs>
                 </svg>
                 <span class="brand-name">Resume Analyzer Pro</span>
-            </div>
+            </a>
             <div class="nav-links">
-                <a href="#upload" class="nav-link">Upload</a>
-                <a href="#analysis" class="nav-link">Analysis</a>
-                <a href="#recommendations" class="nav-link">Jobs</a>
+                <a href="/" class="nav-link active">
+                    <span>Analyzer</span>
+                </a>
+                <a href="/jobs.html" class="nav-link">
+                    <span>Find Jobs</span>
+                </a>
             </div>
         </div>
     </nav>
@@ -39,8 +42,8 @@
     <section class="hero">
         <div class="hero-container">
             <div class="hero-content">
-                <h1 class="hero-title">Optimize Your Career with AI Analysis</h1>
-                <p class="hero-subtitle">Transform your resume into actionable career insights with advanced AI analysis</p>
+                <h1 class="hero-title">AI Resume Analyzer</h1>
+                <p class="hero-subtitle">Upload your resume and get instant AI-powered insights and recommendations</p>
                 <div class="hero-features">
                     <div class="feature-badge">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -74,8 +77,8 @@
             <!-- Upload Section -->
             <section class="section" id="upload">
                 <div class="section-header">
-                    <h2 class="section-title">Upload Your Resume</h2>
-                    <p class="section-description">Upload your PDF resume to begin the AI-powered analysis</p>
+                    <h2 class="section-title">Resume Analysis</h2>
+                    <p class="section-description">Upload your PDF resume to get comprehensive AI analysis</p>
                 </div>
                 
                 <div class="upload-with-features">
@@ -88,14 +91,22 @@
                                 <path d="M8 32v4a4 4 0 004 4h24a4 4 0 004-4v-4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
                             </svg>
                             <h3 class="upload-title">Drop your resume here or click to browse</h3>
-                            <p class="upload-subtitle">Supports PDF files up to 10MB</p>
-                            <button class="btn btn-primary" type="button">
+                            <p class="upload-subtitle">Supports PDF files up to 10MB • Text-based PDFs work best</p>
+                        </div>
+                        
+                        <div class="upload-actions">
+                            <button class="btn btn-primary btn-large" type="button" onclick="document.getElementById('resumeFile').click()">
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                                 </svg>
                                 Choose File
                             </button>
                         </div>
+                        
+                        <div class="upload-tips">
+                            <small>💡 <strong>Tips:</strong> Use PDFs with selectable text (not scanned images) for best results</small>
+                        </div>
+                        
                         <p id="fileName" class="file-name"></p>
                     </div>
 
@@ -218,11 +229,40 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
-            <p class="footer-text">© 2024 Resume Analyzer Pro. Powered by Advanced AI Technology.</p>
-            <div class="footer-links">
-                <a href="#" class="footer-link">Privacy Policy</a>
-                <a href="#" class="footer-link">Terms of Service</a>
-                <a href="#" class="footer-link">Contact</a>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Quick Tips</h4>
+                    <ul>
+                        <li>Use text-based PDFs for best results</li>
+                        <li>Include complete job descriptions for ATS checking</li>
+                        <li>Try the AI chat for personalized advice</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>AI Resume Analysis</li>
+                        <li>Job Market Intelligence</li>
+                        <li>ATS Compatibility Check</li>
+                        <li>LinkedIn Integration</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li>Check README.md for setup help</li>
+                        <li>Ensure GROQ_API_KEY is set</li>
+                        <li>Test with sample resumes first</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-text">© 2024 Resume Analyzer Pro. Powered by AI Technology.</p>
+                <div class="footer-links">
+                    <a href="https://console.groq.com" target="_blank" class="footer-link">Get API Key</a>
+                    <a href="#" class="footer-link">Documentation</a>
+                    <a href="#" class="footer-link">Support</a>
+                </div>
             </div>
         </div>
     </footer>

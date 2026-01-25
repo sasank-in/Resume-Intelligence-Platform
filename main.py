@@ -10,7 +10,7 @@ import os
 from app.config import APP_TITLE, APP_DESCRIPTION, APP_VERSION, STATIC_DIR, REQUEST_TIMEOUT
 from app.models import (
     ResumeAnalysisRequest, ChatMessage, LinkedInProfileRequest,
-    JobRecommendationRequest
+    JobRecommendationRequest, ATSCheckRequest, ATSSuggestionsRequest
 )
 from app.session_manager import SessionManager
 from app.handlers import (
@@ -57,6 +57,19 @@ async def analysis_page():
         raise HTTPException(
             status_code=404,
             detail="Analysis page not found. Please ensure static/analysis.html exists."
+        )
+
+
+@app.get("/jobs.html", response_class=HTMLResponse)
+async def jobs_page():
+    """Serve jobs & ATS page"""
+    try:
+        with open("static/jobs.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="Jobs page not found. Please ensure static/jobs.html exists."
         )
 
 
@@ -121,6 +134,63 @@ async def recommend_jobs(request: JobRecommendationRequest):
     - **session_id**: Unique session identifier
     """
     return await job_handlers.recommend_jobs(request)
+
+
+@app.post("/check-ats")
+async def check_ats_compatibility(session_id: str = Form(...), 
+                                job_description: str = Form(...),
+                                target_role: str = Form(None),
+                                ats_system: str = Form("Generic")):
+    """
+    Check ATS compatibility against job description
+    
+    - **session_id**: Unique session identifier
+    - **job_description**: Job posting description
+    - **target_role**: Target role title (optional)
+    - **ats_system**: Target ATS system (optional)
+    """
+    return await job_handlers.check_ats_compatibility(session_id, job_description, target_role, ats_system)
+
+
+@app.post("/ats-suggestions")
+async def get_ats_suggestions(request: ATSSuggestionsRequest):
+    """
+    Get specific ATS improvement suggestions
+    
+    - **session_id**: Unique session identifier
+    - **improvement_type**: Type of improvements (keywords/format/structure/all)
+    """
+    return await job_handlers.get_ats_suggestions(request.session_id, request.improvement_type)
+
+
+@app.post("/analyze-job")
+async def analyze_job_description(job_description: str = Form(...),
+                                target_role: str = Form(None),
+                                analysis_type: str = Form("comprehensive")):
+    """
+    Analyze job description without resume (standalone)
+    
+    - **job_description**: Job posting description
+    - **target_role**: Target role title (optional)
+    - **analysis_type**: Type of analysis (comprehensive/skills/ats/market)
+    """
+    return await job_handlers.analyze_job_standalone(job_description, target_role, analysis_type)
+
+
+@app.post("/market-insights")
+async def get_market_insights(job_role: str = Form(...),
+                            experience_level: str = Form(None),
+                            industry: str = Form(None),
+                            location: str = Form(None)):
+    """
+    Get job market insights for specific role
+    
+    - **job_role**: Job role/title to research
+    - **experience_level**: Experience level (entry/mid/senior/lead)
+    - **industry**: Industry sector (optional)
+    - **location**: Location (optional)
+    """
+    return await job_handlers.get_market_data(job_role, experience_level, industry, location)
 
 
 @app.get("/health")

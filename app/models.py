@@ -22,6 +22,18 @@ class JobRecommendationRequest(BaseModel):
     """Request model for job recommendations"""
     session_id: str
 
+class ATSCheckRequest(BaseModel):
+    """Request model for ATS compatibility check"""
+    session_id: str
+    job_description: str
+    target_role: Optional[str] = None
+    ats_system: Optional[str] = "Generic"
+
+class ATSSuggestionsRequest(BaseModel):
+    """Request model for ATS improvement suggestions"""
+    session_id: str
+    improvement_type: Optional[str] = "all"  # keywords/format/structure/all
+
 class ResumeData(BaseModel):
     """Resume data model"""
     name: Optional[str] = None

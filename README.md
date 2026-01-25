@@ -1,68 +1,154 @@
-# Resume Summarizer
+# Resume Analyzer Pro
 
-AI-powered resume analysis and intelligent job recommendation system powered by Groq API.
+🚀 **AI-powered resume analysis and job matching system** - Upload your resume, get instant insights, check ATS compatibility, and discover perfect job matches.
 
-## Quick Start
+## ⚡ Quick Start
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 pip install -r requirements.txt
 
-# Configure environment
-echo "GROQ_API_KEY=your_key_here" > .env
+# 2. Add your API key
+echo "GROQ_API_KEY=your_groq_api_key_here" > .env
 
-# Run application
+# 3. Run the application
 python main.py
 ```
 
-Open browser to `http://localhost:8000`
+**Open your browser to:** `http://localhost:8000`
 
-## Documentation
+## 🎯 What This Does
 
-- **[Setup & Usage](docs/README.md)** - Installation, configuration, API reference
-- **[Architecture](docs/PROJECT_STRUCTURE.md)** - Project structure, module descriptions, design patterns
-
-## Features
-
-- Resume analysis & parsing
-- AI-powered insights
+### **Upload & Analyze**
+- Upload PDF resume → Get instant AI analysis
+- Extract skills, experience, education automatically
 - Interactive chat about your resume
-- LinkedIn profile integration
-- Job recommendations
 
-## Project Structure
+### **Find Perfect Jobs**
+- AI-powered job recommendations
+- Match jobs to your exact skills and experience
+- Get salary estimates and growth potential
 
-```
-resume-summarizer/
-├── app/                    # Application modules
-│   ├── config.py          # Configuration
-│   ├── models.py          # Data models
-│   ├── services.py        # Business logic
-│   ├── handlers.py        # Route handlers
-│   └── session_manager.py # Session management
-│
-├── src/                   # Business logic modules
-├── static/                # Frontend
-├── tests/                 # Test suite
-├── docs/                  # Documentation
-│
-├── main.py               # Application entry point
-├── requirements.txt
-└── .env                  # Configuration (create this)
-```
+### **ATS Compatibility Check**
+- Test your resume against real job descriptions
+- Get compatibility scores (0-100%)
+- Receive specific improvement recommendations
+- Support for major ATS systems (Workday, Taleo, iCIMS, etc.)
 
-## Technology Stack
+## 🛠 Features
+
+✅ **Smart Resume Parsing** - AI extracts all relevant information  
+✅ **Job Matching** - Find jobs that fit your profile perfectly  
+✅ **ATS Checker** - Test compatibility with applicant tracking systems  
+✅ **LinkedIn Integration** - Enhance your profile with LinkedIn data  
+✅ **AI Chat** - Ask questions about your resume and career  
+✅ **Mobile Friendly** - Works perfectly on all devices  
+
+## 📱 How to Use
+
+### **Simple 2-Step Process:**
+
+1. **Analyzer** → Upload your PDF resume and get comprehensive AI analysis
+2. **Find Jobs** → Analyze job descriptions and get market insights independently
+
+### **Two Powerful Tools:**
+- **Resume Analyzer**: Upload resume → Get AI insights, skills analysis, and improvement recommendations
+- **Job Market Intelligence**: Analyze job postings → Get requirements breakdown and market data
+
+## 🔧 Technical Stack
 
 - **Backend**: FastAPI, Python 3.8+
-- **AI**: Groq API (openai/gpt-oss-120b)
+- **AI**: Groq API (Llama models)
 - **PDF Processing**: PyPDF2
-- **Web Scraping**: Selenium
+- **Web Scraping**: Selenium (LinkedIn)
 - **Frontend**: HTML5, CSS3, JavaScript
+- **Database**: In-memory sessions
 
-## License
+## 📋 Requirements
 
-[Add license information]
+- Python 3.8 or higher
+- Groq API key (free at [groq.com](https://groq.com))
+- Modern web browser
 
-## Support
+## 🚀 Installation
 
-See [documentation](docs/) for detailed setup and troubleshooting guides.
+### **Option 1: Quick Setup**
+```bash
+git clone <your-repo>
+cd resume-analyzer
+pip install -r requirements.txt
+echo "GROQ_API_KEY=your_key_here" > .env
+python main.py
+```
+
+### **Option 2: Virtual Environment**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+echo "GROQ_API_KEY=your_key_here" > .env
+python main.py
+```
+
+## 🔑 Getting Your API Key
+
+1. Go to [console.groq.com](https://console.groq.com)
+2. Sign up for free account
+3. Create new API key
+4. Add to `.env` file: `GROQ_API_KEY=your_key_here`
+
+## 📁 Project Structure
+
+```
+resume-analyzer/
+├── app/                    # Application core
+│   ├── handlers.py        # API route handlers
+│   ├── models.py          # Data models
+│   ├── services.py        # Business logic
+│   └── config.py          # Configuration
+├── src/                   # Business modules
+│   ├── utils/             # Utilities (ATS checker, etc.)
+│   ├── recommenders/      # Job recommendation engine
+│   └── scrapers/          # LinkedIn scraper
+├── static/                # Frontend files
+│   ├── index.html         # Home page
+│   ├── analysis.html      # Resume analysis page
+│   ├── jobs.html          # Jobs & ATS page
+│   └── *.js, *.css        # Scripts and styles
+└── main.py               # Application entry point
+```
+
+## 🎯 API Endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /upload` | Upload and analyze resume |
+| `POST /check-ats` | Check ATS compatibility |
+| `POST /recommend-jobs` | Get job recommendations |
+| `POST /chat` | Chat with AI about resume |
+
+## 🔧 Troubleshooting
+
+**Common Issues:**
+
+- **"GROQ_API_KEY not found"** → Add your API key to `.env` file
+- **"Port 8000 already in use"** → Change port in `main.py` or kill existing process
+- **"PDF parsing failed"** → Ensure PDF is text-based (not scanned image)
+
+## 📞 Support
+
+- Check [docs/](docs/) folder for detailed guides
+- Review code comments for technical details
+- Test with sample resumes first
+
+## 🎉 Success Tips
+
+1. **Use text-based PDFs** (not scanned images)
+2. **Include complete job descriptions** for ATS checking
+3. **Try different ATS systems** to see variations
+4. **Ask specific questions** in the AI chat
+5. **Update your resume** based on recommendations
+
+---
+
+**Ready to optimize your job search? Upload your resume and discover your potential!** 🚀

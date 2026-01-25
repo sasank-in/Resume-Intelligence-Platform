@@ -11,7 +11,7 @@ GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY not found in .env file")
 
-GROQ_MODEL = 'openai/gpt-oss-120b'
+GROQ_MODEL = 'llama3-8b-8192'
 
 # File Upload Configuration
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB

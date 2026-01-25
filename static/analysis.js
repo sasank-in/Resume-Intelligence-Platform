@@ -632,3 +632,199 @@ function displayJobRecommendations(data) {
     
     contentEl.innerHTML = html;
 }
+// ATS Checker Functions
+async function checkATSCompatibility() {
+    const jobDescription = document.getElementById('jobDescription').value.trim();
+    const targetRole = document.getElementById('targetRole').value.trim();
+    const atsSystem = document.getElementById('atsSystem').value;
+    
+    if (!jobDescription) {
+        alert('Please enter a job description');
+        return;
+    }
+    
+    const checkBtn = document.getElementById('checkATSBtn');
+    const resultsDiv = document.getElementById('atsResults');
+    
+    // Show loading state
+    checkBtn.disabled = true;
+    checkBtn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+        </svg>
+        Analyzing...
+    `;
+    
+    resultsDiv.innerHTML = `
+        <div class="ats-loading">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+            Analyzing ATS compatibility...
+        </div>
+    `;
+    resultsDiv.style.display = 'block';
+    
+    try {
+        const formData = new FormData();
+        formData.append('session_id', sessionId);
+        formData.append('job_description', jobDescription);
+        formData.append('target_role', targetRole);
+        formData.append('ats_system', atsSystem);
+        
+        const response = await fetch('/check-ats', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            displayATSResults(data.analysis);
+        } else {
+            throw new Error(data.detail || 'ATS analysis failed');
+        }
+    } catch (error) {
+        console.error('ATS analysis error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-error">
+                <strong>Analysis Failed:</strong> ${error.message}
+            </div>
+        `;
+    } finally {
+        // Reset button
+        checkBtn.disabled = false;
+        checkBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Check ATS Compatibility
+        `;
+    }
+}
+
+function displayATSResults(analysis) {
+    const resultsDiv = document.getElementById('atsResults');
+    const score = analysis.overall_score;
+    const scoreClass = getScoreClass(score);
+    
+    resultsDiv.innerHTML = `
+        <!-- ATS Score Card -->
+        <div class="ats-score-card">
+            <div class="ats-score-value">${score}%</div>
+            <div class="ats-score-label">ATS Compatibility Score</div>
+            <div class="ats-score-description">${analysis.pass_probability.message}</div>
+        </div>
+        
+        <!-- Analysis Grid -->
+        <div class="ats-analysis-grid">
+            <!-- Keyword Analysis -->
+            <div class="ats-analysis-card">
+                <div class="ats-analysis-header">
+                    <div class="ats-analysis-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <div class="ats-analysis-title">Keywords</div>
+                </div>
+                <div class="ats-score-bar">
+                    <div class="ats-score-fill ${getScoreClass(analysis.keyword_analysis.keyword_score)}" 
+                         style="width: ${analysis.keyword_analysis.keyword_score}%"></div>
+                </div>
+                <p><strong>Required Skills Match:</strong> ${analysis.keyword_analysis.required_skill_coverage.toFixed(1)}%</p>
+                <p><strong>Matching Skills:</strong> ${analysis.keyword_analysis.required_skill_matches.slice(0, 5).join(', ') || 'None'}</p>
+                ${analysis.keyword_analysis.missing_required_skills.length > 0 ? 
+                    `<p><strong>Missing:</strong> ${analysis.keyword_analysis.missing_required_skills.slice(0, 5).join(', ')}</p>` : ''}
+            </div>
+            
+            <!-- Format Analysis -->
+            <div class="ats-analysis-card">
+                <div class="ats-analysis-header">
+                    <div class="ats-analysis-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div class="ats-analysis-title">Format</div>
+                </div>
+                <div class="ats-score-bar">
+                    <div class="ats-score-fill ${getScoreClass(analysis.format_analysis.format_score)}" 
+                         style="width: ${analysis.format_analysis.format_score}%"></div>
+                </div>
+                <p><strong>ATS-Friendly Elements:</strong> ${analysis.format_analysis.ats_friendly_elements.length}</p>
+                ${analysis.format_analysis.issues.length > 0 ? 
+                    `<p><strong>Issues:</strong> ${analysis.format_analysis.issues.slice(0, 3).join(', ')}</p>` : 
+                    '<p><strong>Status:</strong> No major format issues detected</p>'}
+            </div>
+            
+            <!-- Structure Analysis -->
+            <div class="ats-analysis-card">
+                <div class="ats-analysis-header">
+                    <div class="ats-analysis-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 11H5m14-7H5m14 14H5"/>
+                        </svg>
+                    </div>
+                    <div class="ats-analysis-title">Structure</div>
+                </div>
+                <div class="ats-score-bar">
+                    <div class="ats-score-fill ${getScoreClass(analysis.structure_analysis.structure_score)}" 
+                         style="width: ${analysis.structure_analysis.structure_score}%"></div>
+                </div>
+                <p><strong>Section Order:</strong> ${analysis.structure_analysis.section_order.join(' → ')}</p>
+                <p><strong>Consistency:</strong> ${analysis.structure_analysis.consistency_score.toFixed(1)}%</p>
+            </div>
+        </div>
+        
+        <!-- Competitive Analysis -->
+        <div class="ats-analysis-card" style="margin-bottom: 2rem;">
+            <div class="ats-analysis-header">
+                <div class="ats-analysis-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div class="ats-analysis-title">Competitive Position</div>
+            </div>
+            <p><strong>Your Position:</strong> ${analysis.competitive_analysis.percentile} of candidates</p>
+            <p><strong>Pass Probability:</strong> ${analysis.pass_probability.probability}</p>
+            <p><strong>Industry Benchmark:</strong> ${analysis.competitive_analysis.benchmark_score}%</p>
+        </div>
+        
+        <!-- Recommendations -->
+        <div class="ats-recommendations">
+            <h4>Improvement Recommendations</h4>
+            ${analysis.recommendations.map(rec => `
+                <div class="recommendation-item">
+                    <div class="recommendation-header">
+                        <span class="priority-badge ${rec.priority.toLowerCase()}">${rec.priority}</span>
+                        <span class="recommendation-category">${rec.category}</span>
+                    </div>
+                    <div class="recommendation-issue">${rec.issue}</div>
+                    <div class="recommendation-action">${rec.action}</div>
+                    <div class="recommendation-impact">Impact: ${rec.impact}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function getScoreClass(score) {
+    if (score >= 85) return 'excellent';
+    if (score >= 75) return 'good';
+    if (score >= 60) return 'fair';
+    return 'poor';
+}
+
+// Add event listener for Enter key in job description textarea
+document.addEventListener('DOMContentLoaded', () => {
+    const jobDescTextarea = document.getElementById('jobDescription');
+    if (jobDescTextarea) {
+        jobDescTextarea.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                checkATSCompatibility();
+            }
+        });
+    }
+});

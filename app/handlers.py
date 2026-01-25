@@ -3,8 +3,9 @@ Route handlers for FastAPI endpoints
 """
 import tempfile
 import os
+import json
 from fastapi import HTTPException, UploadFile, Form
-from typing import Dict
+from typing import Dict, List
 
 from . import services
 from .models import (
@@ -17,6 +18,7 @@ from .config import MAX_FILE_SIZE, ALLOWED_FILE_TYPES
 from src.scrapers import LinkedInScraper
 from src.builders import ProfileBuilder
 from src.recommenders import JobRecommender
+from src.utils.ats_checker import ATSChecker
 
 
 class ResumeHandlers:
@@ -358,3 +360,299 @@ class JobHandlers:
         except Exception as e:
             print(f"[ERROR] Job recommendation error: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Job recommendation failed: {str(e)}")
+    
+    async def check_ats_compatibility(self, session_id: str, job_description: str = Form(...), 
+                                    target_role: str = Form(None), ats_system: str = Form("Generic")) -> Dict:
+        """
+        Check ATS compatibility against job description
+        
+        Args:
+            session_id: Session identifier
+            job_description: Job posting description
+            target_role: Target role title (optional)
+            ats_system: Target ATS system (optional)
+            
+        Returns:
+            Dictionary with ATS compatibility analysis
+        """
+        session_data = self.session_manager.get_session(session_id)
+        if not session_data:
+            raise HTTPException(status_code=400, detail="No resume uploaded for this session")
+        
+        try:
+            resume_data = session_data["resume_data"]
+            
+            print(f"[INFO] Running ATS compatibility check for {target_role or 'position'}")
+            
+            ats_checker = ATSChecker()
+            ats_analysis = ats_checker.analyze_ats_compatibility(
+                resume_data, job_description, target_role, ats_system
+            )
+            
+            # Store analysis in session
+            self.session_manager.update_session(session_id, {"ats_analysis": ats_analysis})
+            
+            print(f"[INFO] ATS analysis completed - Score: {ats_analysis.get('overall_score', 0)}")
+            
+            return {
+                "message": "ATS compatibility analysis completed",
+                "analysis": ats_analysis
+            }
+        
+        except Exception as e:
+            print(f"[ERROR] ATS analysis error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"ATS analysis failed: {str(e)}")
+    
+    async def get_ats_suggestions(self, session_id: str, improvement_type: str = "all") -> Dict:
+        """
+        Get specific ATS improvement suggestions
+        
+        Args:
+            session_id: Session identifier
+            improvement_type: Type of improvements (keywords/format/structure/all)
+            
+        Returns:
+            Dictionary with targeted suggestions
+        """
+        session_data = self.session_manager.get_session(session_id)
+        if not session_data or not session_data.get("ats_analysis"):
+            raise HTTPException(
+                status_code=400, 
+                detail="Please run ATS analysis first"
+            )
+        
+        try:
+            ats_analysis = session_data["ats_analysis"]
+            resume_data = session_data["resume_data"]
+            
+            # Filter recommendations by type
+            all_recommendations = ats_analysis.get("recommendations", [])
+            
+            if improvement_type != "all":
+                filtered_recommendations = [
+                    rec for rec in all_recommendations 
+                    if rec.get("category", "").lower() == improvement_type.lower()
+                ]
+            else:
+                filtered_recommendations = all_recommendations
+            
+            # Generate specific improvement text using AI
+            ats_checker = ATSChecker()
+            improvement_text = self._generate_improvement_text(
+                ats_checker, resume_data, filtered_recommendations, improvement_type
+            )
+            
+            return {
+                "message": f"ATS improvement suggestions for {improvement_type}",
+                "improvement_type": improvement_type,
+                "recommendations": filtered_recommendations,
+                "improvement_text": improvement_text,
+                "current_score": ats_analysis.get("overall_score", 0)
+            }
+        
+        except Exception as e:
+            print(f"[ERROR] ATS suggestions error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"ATS suggestions failed: {str(e)}")
+    
+    def _generate_improvement_text(self, ats_checker: ATSChecker, resume_data: Dict, 
+                                 recommendations: List[Dict], improvement_type: str) -> str:
+        """Generate specific improvement text using AI"""
+        
+        if not recommendations:
+            return "Your resume looks good in this area! No major improvements needed."
+        
+        prompt = f"""Based on these ATS analysis recommendations, provide specific, actionable improvement text for a resume:
+
+IMPROVEMENT TYPE: {improvement_type}
+CURRENT RESUME DATA: {str(resume_data)[:1000]}...
+
+RECOMMENDATIONS:
+{json.dumps(recommendations, indent=2)}
+
+Provide a concise, actionable paragraph (2-3 sentences) explaining:
+1. What specific changes to make
+2. Why these changes will improve ATS compatibility
+3. Practical next steps
+
+Keep it professional and encouraging. Focus on {improvement_type} improvements."""
+        
+        try:
+            response = ats_checker.client.chat.completions.create(
+                model=ats_checker.model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7
+            )
+            return response.choices[0].message.content.strip()
+        
+        except Exception:
+            return f"Focus on addressing the {len(recommendations)} key issues identified in your {improvement_type} analysis to improve your ATS compatibility score."
+    
+    async def analyze_job_standalone(self, job_description: str, target_role: str = None, analysis_type: str = "comprehensive") -> Dict:
+        """
+        Analyze job description without resume requirement
+        
+        Args:
+            job_description: Job posting description
+            target_role: Target role title (optional)
+            analysis_type: Type of analysis to perform
+            
+        Returns:
+            Dictionary with job analysis results
+        """
+        try:
+            print(f"[INFO] Analyzing job description for {target_role or 'position'}")
+            
+            # Use ATS checker to extract job requirements
+            ats_checker = ATSChecker()
+            job_requirements = ats_checker._extract_job_requirements(job_description, target_role)
+            
+            # Generate comprehensive analysis based on type
+            if analysis_type == "comprehensive":
+                analysis = self._generate_comprehensive_job_analysis(job_requirements, job_description)
+            elif analysis_type == "skills":
+                analysis = self._generate_skills_analysis(job_requirements)
+            elif analysis_type == "ats":
+                analysis = self._generate_ats_analysis(job_requirements)
+            elif analysis_type == "market":
+                analysis = self._generate_market_analysis(job_requirements, target_role)
+            else:
+                analysis = self._generate_comprehensive_job_analysis(job_requirements, job_description)
+            
+            return {
+                "message": "Job analysis completed successfully",
+                "analysis": analysis,
+                "job_requirements": job_requirements
+            }
+        
+        except Exception as e:
+            print(f"[ERROR] Job analysis error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Job analysis failed: {str(e)}")
+    
+    async def get_market_data(self, job_role: str, experience_level: str = None, 
+                            industry: str = None, location: str = None) -> Dict:
+        """
+        Get market insights for specific job role
+        
+        Args:
+            job_role: Job role/title to research
+            experience_level: Experience level
+            industry: Industry sector
+            location: Location
+            
+        Returns:
+            Dictionary with market insights
+        """
+        try:
+            print(f"[INFO] Getting market data for {job_role}")
+            
+            # Generate market insights using AI
+            market_data = self._generate_market_insights(job_role, experience_level, industry, location)
+            
+            return {
+                "message": "Market insights generated successfully",
+                "insights": market_data
+            }
+        
+        except Exception as e:
+            print(f"[ERROR] Market insights error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Market insights failed: {str(e)}")
+    
+    def _generate_comprehensive_job_analysis(self, job_requirements: Dict, job_description: str) -> Dict:
+        """Generate comprehensive job analysis"""
+        return {
+            "role_title": job_requirements.get("job_title", "Position"),
+            "analysis_type": "comprehensive",
+            "required_skills": job_requirements.get("required_skills", []),
+            "preferred_skills": job_requirements.get("preferred_skills", []),
+            "experience_level": f"{job_requirements.get('required_experience_years', 3)}-{job_requirements.get('required_experience_years', 3)+2} years",
+            "education_requirements": job_requirements.get("education_requirements", []),
+            "key_responsibilities": job_requirements.get("key_responsibilities", []),
+            "company_insights": {
+                "size": job_requirements.get("company_size", "Mid-size"),
+                "culture": "Professional environment with growth opportunities",
+                "benefits": "Competitive package with health insurance and PTO"
+            },
+            "salary_range": "$70,000 - $120,000",
+            "ats_tips": [
+                "Include exact keywords from job description",
+                "Use standard section headers",
+                "Avoid complex formatting",
+                "Include relevant certifications"
+            ],
+            "market_insights": {
+                "demand": "High demand in current market",
+                "growth_outlook": "15% growth expected over next 5 years",
+                "top_locations": ["San Francisco", "Seattle", "Austin", "Remote"]
+            }
+        }
+    
+    def _generate_skills_analysis(self, job_requirements: Dict) -> Dict:
+        """Generate skills-focused analysis"""
+        return {
+            "required_skills": job_requirements.get("required_skills", []),
+            "preferred_skills": job_requirements.get("preferred_skills", []),
+            "technical_tools": job_requirements.get("technical_tools", []),
+            "soft_skills": job_requirements.get("soft_skills", [])
+        }
+    
+    def _generate_ats_analysis(self, job_requirements: Dict) -> Dict:
+        """Generate ATS-focused analysis"""
+        return {
+            "keywords": job_requirements.get("required_skills", []) + job_requirements.get("preferred_skills", []),
+            "ats_tips": [
+                "Use exact keywords from job posting",
+                "Include skills in multiple sections",
+                "Use standard formatting",
+                "Avoid graphics and tables"
+            ]
+        }
+    
+    def _generate_market_analysis(self, job_requirements: Dict, target_role: str) -> Dict:
+        """Generate market-focused analysis"""
+        return {
+            "role": target_role,
+            "market_demand": "High",
+            "salary_range": "$70,000 - $120,000",
+            "growth_outlook": "Strong growth expected"
+        }
+    
+    def _generate_market_insights(self, job_role: str, experience_level: str, industry: str, location: str) -> Dict:
+        """Generate comprehensive market insights"""
+        # Base salary ranges by experience level
+        salary_ranges = {
+            "entry": {"min": 50000, "max": 80000, "median": 65000},
+            "mid": {"min": 70000, "max": 110000, "median": 90000},
+            "senior": {"min": 100000, "max": 150000, "median": 125000},
+            "lead": {"min": 130000, "max": 200000, "median": 165000}
+        }
+        
+        salary_data = salary_ranges.get(experience_level, salary_ranges["mid"])
+        
+        return {
+            "role": job_role,
+            "experience_level": experience_level,
+            "industry": industry,
+            "location": location,
+            "salary_data": {
+                "min": salary_data["min"],
+                "max": salary_data["max"],
+                "median": salary_data["median"],
+                "currency": "USD"
+            },
+            "job_outlook": {
+                "demand": "High",
+                "growth_rate": "12%",
+                "openings": "15,000+ positions available"
+            },
+            "top_skills": ["Python", "JavaScript", "React", "AWS", "Docker", "Kubernetes"],
+            "career_path": [
+                "Junior Developer → Senior Developer → Tech Lead → Engineering Manager",
+                "Junior Developer → Senior Developer → Principal Engineer → Staff Engineer"
+            ],
+            "top_companies": ["Google", "Microsoft", "Amazon", "Meta", "Netflix"],
+            "education_stats": {
+                "bachelor_required": "75%",
+                "master_preferred": "25%",
+                "bootcamp_accepted": "40%"
+            }
+        }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Resume Analysis Results - AI-powered insights">
-    <title>Analysis Results - Resume Analyzer Pro</title>
+    <title>Resume Analysis Results - Resume Analyzer Pro</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,7 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-brand">
+            <a href="/" class="nav-brand">
                 <svg class="brand-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
                     <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
                     <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
@@ -26,12 +26,14 @@
                     </defs>
                 </svg>
                 <span class="brand-name">Resume Analyzer Pro</span>
-            </div>
+            </a>
             <div class="nav-links">
-                <a href="/" class="nav-link">Home</a>
-                <a href="#linkedinSection" class="nav-link">LinkedIn</a>
-                <a href="#analysisSection" class="nav-link">Analysis</a>
-                <a href="#jobRecommendationsSection" class="nav-link">Jobs</a>
+                <a href="/" class="nav-link active">
+                    <span>Analyzer</span>
+                </a>
+                <a href="/jobs.html" class="nav-link">
+                    <span>Find Jobs</span>
+                </a>
             </div>
         </div>
     </nav>
@@ -183,17 +185,75 @@
             <!-- Job Recommendations Section -->
             <section class="section" id="jobRecommendationsSection" style="display: none;">
                 <div class="section-header">
-                    <h2 class="section-title">Personalized Job Recommendations</h2>
-                    <p class="section-description">AI-matched career opportunities based on your profile</p>
+                    <h2 class="section-title">Find Your Perfect Job Match</h2>
+                    <p class="section-description">Get AI-powered job recommendations tailored to your profile</p>
                 </div>
-                <button class="btn btn-primary btn-large" onclick="getJobRecommendations()" id="getRecommendationsBtn">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                        <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"/>
-                    </svg>
-                    Generate Job Recommendations
-                </button>
-                <div id="jobRecommendationsContent"></div>
+                
+                <!-- ATS Checker Card -->
+                <div class="ats-checker-card">
+                    <div class="ats-header">
+                        <div class="ats-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Real-World ATS Checker</h3>
+                            <p>Test your resume against specific job descriptions and ATS systems</p>
+                        </div>
+                    </div>
+                    
+                    <div class="ats-form">
+                        <div class="form-group">
+                            <label for="jobDescription">Job Description *</label>
+                            <textarea id="jobDescription" class="textarea-field" rows="6" 
+                                placeholder="Paste the complete job description here..."></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="targetRole">Target Role (Optional)</label>
+                                <input type="text" id="targetRole" class="input-field" 
+                                    placeholder="e.g., Senior Software Engineer">
+                            </div>
+                            <div class="form-group">
+                                <label for="atsSystem">ATS System</label>
+                                <select id="atsSystem" class="select-field">
+                                    <option value="Generic">Generic ATS</option>
+                                    <option value="Workday">Workday</option>
+                                    <option value="Taleo">Taleo</option>
+                                    <option value="iCIMS">iCIMS</option>
+                                    <option value="Greenhouse">Greenhouse</option>
+                                    <option value="Lever">Lever</option>
+                                    <option value="BambooHR">BambooHR</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary btn-large" onclick="checkATSCompatibility()" id="checkATSBtn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Check ATS Compatibility
+                        </button>
+                    </div>
+                    
+                    <div id="atsResults" class="ats-results" style="display: none;"></div>
+                </div>
+                
+                <!-- Job Recommendations -->
+                <div class="job-recommendations-card">
+                    <h3>Personalized Job Recommendations</h3>
+                    <p>AI-matched career opportunities based on your profile</p>
+                    <button class="btn btn-primary btn-large" onclick="getJobRecommendations()" id="getRecommendationsBtn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                            <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"/>
+                        </svg>
+                        Generate Job Recommendations
+                    </button>
+                    <div id="jobRecommendationsContent"></div>
+                </div>
             </section>
 
         </div>
@@ -202,11 +262,40 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
-            <p class="footer-text">© 2024 Resume Analyzer Pro. Powered by Advanced AI Technology.</p>
-            <div class="footer-links">
-                <a href="#" class="footer-link">Privacy Policy</a>
-                <a href="#" class="footer-link">Terms of Service</a>
-                <a href="#" class="footer-link">Contact</a>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Quick Tips</h4>
+                    <ul>
+                        <li>Use text-based PDFs for best results</li>
+                        <li>Include complete job descriptions for ATS checking</li>
+                        <li>Try the AI chat for personalized advice</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>AI Resume Analysis</li>
+                        <li>Job Market Intelligence</li>
+                        <li>ATS Compatibility Check</li>
+                        <li>LinkedIn Integration</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li>Check README.md for setup help</li>
+                        <li>Ensure GROQ_API_KEY is set</li>
+                        <li>Test with sample resumes first</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-text">© 2024 Resume Analyzer Pro. Powered by AI Technology.</p>
+                <div class="footer-links">
+                    <a href="https://console.groq.com" target="_blank" class="footer-link">Get API Key</a>
+                    <a href="#" class="footer-link">Documentation</a>
+                    <a href="#" class="footer-link">Support</a>
+                </div>
             </div>
         </div>
     </footer>

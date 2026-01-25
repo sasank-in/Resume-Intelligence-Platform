@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jobs & ATS Checker - AI-powered job matching and ATS compatibility">
+    <title>Find Jobs - Resume Analyzer Pro</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <svg class="brand-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                    <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#1e40af"/>
+                            <stop offset="100%" stop-color="#0284c7"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="brand-name">Resume Analyzer Pro</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">
+                    <span>Analyzer</span>
+                </a>
+                <a href="/jobs.html" class="nav-link active">
+                    <span>Find Jobs</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Job Market Intelligence</h1>
+                <p class="hero-subtitle">Analyze job descriptions, understand requirements, and get market insights</p>
+                <div class="hero-features">
+                    <div class="feature-badge">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Job Analysis</span>
+                    </div>
+                    <div class="feature-badge">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>ATS Requirements</span>
+                    </div>
+                    <div class="feature-badge">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Market Insights</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-container">
+            
+            <!-- ATS Checker Section -->
+            <section class="section" id="ats-section">
+                <div class="section-header">
+                    <h2 class="section-title">Job Description Analyzer</h2>
+                    <p class="section-description">Analyze any job posting to understand requirements and expectations</p>
+                </div>
+                
+                <div class="ats-checker-card">
+                    <div class="ats-header">
+                        <div class="ats-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Understand Job Requirements</h3>
+                            <p>Get detailed breakdown of skills, experience, and qualifications needed</p>
+                        </div>
+                    </div>
+                    
+                    <div class="ats-form">
+                        <div class="form-group">
+                            <label for="jobDescription">Job Description *</label>
+                            <textarea id="jobDescription" class="textarea-field" rows="8" 
+                                placeholder="Paste any job description here to analyze...
+
+What you'll discover:
+• Required vs preferred skills
+• Experience level expectations
+• Key responsibilities breakdown
+• Company culture insights
+• Salary and benefits info
+• ATS optimization tips
+
+Example:
+We are seeking a Senior Software Engineer with 5+ years of experience in Python, React, and AWS. The ideal candidate will lead development of scalable web applications..."></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="targetRole">Role Title (Optional)</label>
+                                <input type="text" id="targetRole" class="input-field" 
+                                    placeholder="e.g., Senior Software Engineer">
+                            </div>
+                            <div class="form-group">
+                                <label for="analysisType">Analysis Focus</label>
+                                <select id="analysisType" class="select-field">
+                                    <option value="comprehensive">Comprehensive Analysis</option>
+                                    <option value="skills">Skills & Requirements</option>
+                                    <option value="ats">ATS Optimization</option>
+                                    <option value="market">Market Insights</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary btn-large" onclick="analyzeJobDescription()" id="analyzeJobBtn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                            </svg>
+                            Analyze Job Description
+                        </button>
+                    </div>
+                    
+                    <div id="atsResults" class="ats-results" style="display: none;"></div>
+                </div>
+            </section>
+
+            <!-- Job Market Insights Section -->
+            <section class="section" id="jobs-section">
+                <div class="section-header">
+                    <h2 class="section-title">Job Market Insights</h2>
+                    <p class="section-description">Get insights about roles, salaries, and career paths</p>
+                </div>
+                
+                <div class="job-recommendations-card">
+                    <div class="job-rec-header">
+                        <div class="job-rec-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Career Intelligence</h3>
+                            <p>Explore job markets, salary ranges, and career progression paths</p>
+                        </div>
+                    </div>
+                    
+                    <div class="market-insights-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="jobRole">Job Role/Title</label>
+                                <input type="text" id="jobRole" class="input-field" 
+                                    placeholder="e.g., Software Engineer, Data Scientist, Product Manager">
+                            </div>
+                            <div class="form-group">
+                                <label for="experienceLevel">Experience Level</label>
+                                <select id="experienceLevel" class="select-field">
+                                    <option value="">Any Level</option>
+                                    <option value="entry">Entry Level (0-2 years)</option>
+                                    <option value="mid">Mid Level (3-5 years)</option>
+                                    <option value="senior">Senior Level (6-10 years)</option>
+                                    <option value="lead">Lead/Principal (10+ years)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="industry">Industry (Optional)</label>
+                                <select id="industry" class="select-field">
+                                    <option value="">Any Industry</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="healthcare">Healthcare</option>
+                                    <option value="consulting">Consulting</option>
+                                    <option value="retail">Retail</option>
+                                    <option value="manufacturing">Manufacturing</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location (Optional)</label>
+                                <input type="text" id="location" class="input-field" 
+                                    placeholder="e.g., San Francisco, Remote, New York">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-large" onclick="getMarketInsights()" id="getInsightsBtn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
+                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/>
+                        </svg>
+                        Get Market Insights
+                    </button>
+                    
+                    <div id="jobRecommendationsContent"></div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Quick Tips</h4>
+                    <ul>
+                        <li>Use complete job descriptions for best analysis</li>
+                        <li>Try different analysis focus options</li>
+                        <li>Explore market insights for career planning</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Job Description Analysis</li>
+                        <li>ATS Compatibility Check</li>
+                        <li>Market Intelligence</li>
+                        <li>Career Path Insights</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li>Check README.md for setup help</li>
+                        <li>Ensure GROQ_API_KEY is set</li>
+                        <li>Test with sample job descriptions</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-text">© 2024 Resume Analyzer Pro. Powered by AI Technology.</p>
+                <div class="footer-links">
+                    <a href="https://console.groq.com" target="_blank" class="footer-link">Get API Key</a>
+                    <a href="#" class="footer-link">Documentation</a>
+                    <a href="#" class="footer-link">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="/static/jobs.js"></script>
+</body>
+</html>

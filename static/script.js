@@ -121,7 +121,20 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Upload error details:', error);
             console.error('Error stack:', error.stack);
             if (statusEl) {
-                statusEl.textContent = '❌ Error uploading resume. Please try again.';
+                let errorMessage = '❌ Error uploading resume. ';
+                
+                // Provide specific error messages
+                if (error.message.includes('413') || error.message.includes('too large')) {
+                    errorMessage += 'File is too large. Please use a PDF under 10MB.';
+                } else if (error.message.includes('400') || error.message.includes('PDF')) {
+                    errorMessage += 'Please upload a valid PDF file with selectable text.';
+                } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                    errorMessage += 'Network error. Please check your connection and try again.';
+                } else {
+                    errorMessage += 'Please try again or contact support if the issue persists.';
+                }
+                
+                statusEl.textContent = errorMessage;
                 statusEl.className = 'alert error';
                 statusEl.style.display = 'block';
             }

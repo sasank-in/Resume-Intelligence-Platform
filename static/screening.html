@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Screening System - Resume Analyzer Pro</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <svg class="brand-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                    <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#1e40af"/>
+                            <stop offset="100%" stop-color="#0284c7"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="brand-name">Resume Analyzer Pro</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">
+                    <span>Analyzer</span>
+                </a>
+                <a href="/screening.html" class="nav-link">
+                    <span>Screening</span>
+                </a>
+                <a href="/jobs.html" class="nav-link">
+                    <span>Jobs</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-container">
+            
+            <!-- Page Header -->
+            <section class="section">
+                <div class="section-header-enhanced">
+                    <div class="section-icon-badge">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Resume Screening System</h2>
+                        <p class="section-description">Automate candidate screening with AI-powered analysis and ranking</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Job Requirements Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Step 1: Define Job Requirements</h2>
+                    <p class="section-description">Specify the requirements for the position</p>
+                </div>
+
+                <div class="linkedin-card">
+                    <div class="linkedin-content" style="width: 100%;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Job Title</label>
+                            <input type="text" id="jobTitle" class="input-field" placeholder="e.g., Senior Software Engineer" value="Senior Software Engineer">
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Required Skills (comma-separated)</label>
+                            <input type="text" id="requiredSkills" class="input-field" placeholder="e.g., python, javascript, sql, git" value="python, javascript, sql, git">
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Preferred Skills (comma-separated)</label>
+                            <input type="text" id="preferredSkills" class="input-field" placeholder="e.g., react, docker, aws, agile" value="react, docker, aws, agile">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Min Experience (years)</label>
+                                <input type="number" id="minExperience" class="input-field" value="2" min="0">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Max Experience (years)</label>
+                                <input type="number" id="maxExperience" class="input-field" value="5" min="0">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Required Degree</label>
+                                <select id="requiredDegree" class="input-field">
+                                    <option value="">None</option>
+                                    <option value="associate">Associate</option>
+                                    <option value="bachelor" selected>Bachelor</option>
+                                    <option value="master">Master</option>
+                                    <option value="phd">PhD</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Step 2: Upload Resumes</h2>
+                    <p class="section-description">Upload one or multiple resume PDFs for screening</p>
+                </div>
+
+                <div class="upload-card">
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('resumeFiles').click()">
+                        <div class="upload-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                            </svg>
+                        </div>
+                        <h3 class="upload-title">Upload Resume PDFs</h3>
+                        <p class="upload-subtitle">Click to browse or drag and drop multiple files</p>
+                        <p class="upload-subtitle">Supports batch processing of up to 50 resumes</p>
+                    </div>
+                    <input type="file" id="resumeFiles" accept=".pdf" multiple style="display: none;" onchange="handleFileSelection()">
+                    <div id="fileList" class="file-name" style="display: none;"></div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button class="btn btn-primary btn-large" onclick="screenResumes()" id="screenBtn" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Screen Candidates
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTemplate()">
+                        Load Template
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="section" id="resultsSection" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Screening Results</h2>
+                    <p class="section-description">Ranked candidates with detailed analysis</p>
+                </div>
+
+                <!-- Summary Stats -->
+                <div id="summaryStats" class="stats-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 2rem;"></div>
+
+                <!-- Top Candidates -->
+                <div id="topCandidates"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p class="footer-text">© 2024 Resume Analyzer Pro. Powered by Advanced AI Technology.</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-animation">
+                <div class="spinner-large"></div>
+            </div>
+            <h3 class="loading-title">Screening Candidates</h3>
+            <p class="loading-text">Analyzing resumes and calculating scores...</p>
+            <p class="loading-subtext" id="progressText">Processing 0 of 0 resumes</p>
+        </div>
+    </div>
+
+    <script src="/static/screening.js"></script>
+</body>
+</html>

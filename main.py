@@ -16,6 +16,7 @@ from app.session_manager import SessionManager
 from app.handlers import (
     ResumeHandlers, ChatHandlers, LinkedInHandlers, JobHandlers
 )
+from app.screening_routes import screening_router
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -32,6 +33,9 @@ resume_handlers = ResumeHandlers(session_manager)
 chat_handlers = ChatHandlers(session_manager)
 linkedin_handlers = LinkedInHandlers(session_manager)
 job_handlers = JobHandlers(session_manager)
+
+# Include screening router
+app.include_router(screening_router)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -70,6 +74,19 @@ async def jobs_page():
         raise HTTPException(
             status_code=404,
             detail="Jobs page not found. Please ensure static/jobs.html exists."
+        )
+
+
+@app.get("/screening.html", response_class=HTMLResponse)
+async def screening_page():
+    """Serve resume screening page"""
+    try:
+        with open("static/screening.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="Screening page not found. Please ensure static/screening.html exists."
         )
 
 

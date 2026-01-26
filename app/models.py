@@ -63,3 +63,13 @@ class ProfileResponse(BaseModel):
     message: Optional[str] = None
     info: Optional[str] = None
     warning: Optional[str] = None
+
+class JobRequirements(BaseModel):
+    """Job requirements model for candidate screening"""
+    job_title: str
+    required_skills: List[str]
+    preferred_skills: List[str] = []
+    min_experience_years: float = 0
+    max_experience_years: float = 100
+    required_degree: Optional[str] = None
+    description: Optional[str] = None

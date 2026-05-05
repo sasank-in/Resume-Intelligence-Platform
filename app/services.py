@@ -1,33 +1,49 @@
-"""
-Business logic and service functions for resume analysis
-"""
+"""Business logic and service functions for resume analysis."""
 import json
-import PyPDF2
 from typing import Dict, Optional
-from groq import Groq
-from .config import GROQ_API_KEY, GROQ_MODEL
 
-# Initialize Groq client
+from pypdf import PdfReader
+from groq import Groq
+
+from .config import GROQ_API_KEY, GROQ_MODEL
+from .logging_config import get_logger
+
+log = get_logger(__name__)
 client = Groq(api_key=GROQ_API_KEY)
 
 
+def _strip_code_fences(text: str) -> str:
+    text = text.strip()
+    if "```json" in text:
+        text = text.split("```json", 1)[1].split("```", 1)[0]
+    elif "```" in text:
+        text = text.split("```", 1)[1].split("```", 1)[0]
+    return text.strip()
+
+
+def _llm_json(prompt: str, *, max_tokens: int = 1500, temperature: float = 0.5) -> Dict:
+    """Call the LLM and parse the response as JSON. Returns {} on failure."""
+    response = client.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+    raw = _strip_code_fences(response.choices[0].message.content)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        log.warning("llm_json_parse_failed", extra={"head": raw[:200]})
+        return {}
+
+
 def extract_pdf_text(file_path: str) -> str:
-    """
-    Extract text from PDF file
-    
-    Args:
-        file_path: Path to PDF file
-        
-    Returns:
-        Extracted text from PDF
-    """
-    with open(file_path, 'rb') as file:
-        pdf_reader = PyPDF2.PdfReader(file)
-        text = ""
-        for page_num, page in enumerate(pdf_reader.pages, 1):
-            page_text = page.extract_text()
-            text += f"\n--- Page {page_num} ---\n{page_text}"
-    return text
+    reader = PdfReader(file_path)
+    pieces = []
+    for page_num, page in enumerate(reader.pages, 1):
+        page_text = page.extract_text() or ""
+        pieces.append(f"\n--- Page {page_num} ---\n{page_text}")
+    return "".join(pieces)
 
 
 def extract_resume_data(resume_text: str) -> Dict:
@@ -92,7 +108,7 @@ Return ONLY the JSON, no other text. Ensure all arrays have at least one item.""
         json_str = json_str.strip()
         return json.loads(json_str)
     except Exception as e:
-        print(f"JSON parsing error: {e}, raw response: {json_str[:200]}")
+        log.warning("resume_json_parse_failed", extra={"error": str(e), "head": json_str[:200]})
         return {"raw_analysis": json_str}
 
 
@@ -176,7 +192,7 @@ CRITICAL INSTRUCTIONS:
         
         return analysis
     except json.JSONDecodeError as e:
-        print(f"Analysis JSON parse error: {e}")
+        log.warning("analysis_json_parse_failed", extra={"error": str(e)})
         # Return better fallback with actual resume data
         return {
             "overall_score": "Strong professional profile",
@@ -229,3 +245,87 @@ def generate_chat_response(resume_data: Dict, message: str, chat_history: list) 
         temperature=0.7
     )
     return response.choices[0].message.content.strip()
+
+
+def generate_job_analysis(
+    job_description: str,
+    target_role: Optional[str],
+    analysis_type: str,
+    job_requirements: Dict,
+) -> Dict:
+    """LLM-driven job description analysis. Replaces the hardcoded stub."""
+    role = target_role or job_requirements.get("job_title") or "this role"
+    prompt = f"""Analyze this job posting and produce a {analysis_type} analysis as JSON.
+
+ROLE: {role}
+EXTRACTED REQUIREMENTS: {json.dumps(job_requirements)[:1500]}
+JOB DESCRIPTION:
+{job_description[:4000]}
+
+Return JSON with these fields, all values grounded in the description (not generic):
+{{
+  "role_title": "...",
+  "analysis_type": "{analysis_type}",
+  "required_skills": ["..."],
+  "preferred_skills": ["..."],
+  "experience_level": "e.g. 3-5 years",
+  "education_requirements": ["..."],
+  "key_responsibilities": ["..."],
+  "company_insights": {{"size": "...", "culture": "...", "benefits": "..."}},
+  "salary_range": "estimated range with currency",
+  "ats_tips": ["specific keyword tips"],
+  "market_insights": {{"demand": "...", "growth_outlook": "...", "top_locations": ["..."]}}
+}}
+
+Return ONLY JSON. If a field cannot be inferred, use "Not specified" or []."""
+    result = _llm_json(prompt, max_tokens=1500)
+    if not result:
+        return {
+            "role_title": role,
+            "analysis_type": analysis_type,
+            "error": "Analysis unavailable; please retry.",
+        }
+    result.setdefault("role_title", role)
+    result.setdefault("analysis_type", analysis_type)
+    return result
+
+
+def generate_market_insights(
+    job_role: str,
+    experience_level: Optional[str],
+    industry: Optional[str],
+    location: Optional[str],
+) -> Dict:
+    """LLM-driven market insights. Replaces the hardcoded stub."""
+    prompt = f"""You are a labor-market analyst. Produce JSON insights for:
+ROLE: {job_role}
+EXPERIENCE LEVEL: {experience_level or 'unspecified'}
+INDUSTRY: {industry or 'unspecified'}
+LOCATION: {location or 'unspecified'}
+
+Return JSON only:
+{{
+  "role": "{job_role}",
+  "experience_level": "{experience_level or ''}",
+  "industry": "{industry or ''}",
+  "location": "{location or ''}",
+  "salary_data": {{"min": int, "max": int, "median": int, "currency": "USD"}},
+  "job_outlook": {{"demand": "...", "growth_rate": "...", "openings": "..."}},
+  "top_skills": ["..."],
+  "career_path": ["progression 1", "progression 2"],
+  "top_companies": ["..."],
+  "education_stats": {{"bachelor_required": "...", "master_preferred": "...", "bootcamp_accepted": "..."}},
+  "notes": "brief caveat — these are estimates, not real-time market data"
+}}
+
+Use realistic ranges for the location/experience combo. If location is unspecified, assume US median."""
+    result = _llm_json(prompt, max_tokens=1200)
+    if not result:
+        return {
+            "role": job_role,
+            "experience_level": experience_level,
+            "industry": industry,
+            "location": location,
+            "error": "Market insights unavailable; please retry.",
+        }
+    return result

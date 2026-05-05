@@ -1,317 +1,389 @@
 # Resume Analyzer Pro
 
-AI-powered resume analysis and job matching system. Upload your resume, get instant insights, and discover perfect job matches with comprehensive career analysis.
+AI-powered resume analysis, job matching, and recruiter-side screening — built with FastAPI and Groq.
+
+Two flows in one app:
+
+- **Candidate flow** — upload a PDF resume and get structured extraction, career analysis, ATS compatibility scoring, job recommendations, and an AI chat about your profile.
+- **Recruiter flow** — upload many resumes against a job spec, get them ranked with skill-match breakdowns and gaps.
 
 ## Quick Start
 
 ```bash
-# 1. Install dependencies
 pip install -r requirements.txt
-
-# 2. Add your API key
 echo "GROQ_API_KEY=your_groq_api_key_here" > .env
-
-# 3. Run the application
 python main.py
 ```
 
-Open your browser to: `http://localhost:8000`
+Open http://localhost:8000.
 
-## Overview
-
-Resume Analyzer Pro is a comprehensive career intelligence platform that combines AI-powered resume analysis with job matching capabilities. The system provides detailed insights into your professional profile, identifies career opportunities, and offers actionable recommendations for career advancement.
-
-### Core Capabilities
-
-**Resume Analysis**
-- Automated extraction of skills, experience, and education
-- AI-generated career trajectory analysis
-- Comprehensive strengths and development areas assessment
-- Industry fit recommendations
-- Salary insights based on experience and market data
-
-**Job Intelligence**
-- AI-powered job recommendations matched to your profile
-- Skill gap analysis for target positions
-- Career progression pathways
-- Industry-specific insights
-
-**Interactive Features**
-- AI-powered chat interface for career guidance
-- LinkedIn profile integration for enhanced analysis
-- Session-based data management
-- Responsive design for all devices
+> Get a free Groq API key at [console.groq.com](https://console.groq.com).
 
 ## Features
 
-- Smart Resume Parsing: AI extracts all relevant information from PDF resumes
-- Career Analysis: Detailed assessment of professional trajectory and strengths
-- Job Matching: Intelligent recommendations based on skills and experience
-- LinkedIn Integration: Enhance your profile with LinkedIn data
-- AI Chat Assistant: Interactive career guidance and resume questions
-- Mobile Responsive: Optimized experience across all devices
+**Candidate side**
+- Drag-and-drop PDF resume upload with inline progress + toast notifications
+- Structured extraction (skills, experience, education, contact)
+- AI career analysis: trajectory, strengths, gaps, industry fit, suggested job summary
+- ATS compatibility check against any job description (Workday, Taleo, iCIMS, Greenhouse, Lever, BambooHR, or generic)
+- Targeted ATS improvement suggestions (keywords / format / structure)
+- Job recommendations with match scores
+- LinkedIn profile merge (Selenium-based, optional)
+- AI chat about your resume
+
+**Recruiter side**
+- Single-resume parsing with structured extraction
+- Single-candidate scoring against job requirements
+- Batch screening of up to 50 resumes
+- Side-by-side comparison of 2–5 candidates
+- Job-requirements template endpoint
+
+**Standalone**
+- Job description analyzer (no resume needed)
+- Market insights: salary ranges, demand, top skills, career paths
 
 ## Technical Stack
 
-- **Backend**: FastAPI, Python 3.8+
-- **AI Engine**: Groq API (Llama models)
-- **PDF Processing**: PyPDF2
-- **Web Scraping**: Selenium (LinkedIn integration)
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Session Management**: In-memory with automatic cleanup
+- **Backend**: FastAPI 0.115, Python 3.12, gunicorn + uvicorn workers in production
+- **AI**: Groq API (default model: `openai/gpt-oss-120b`, configurable)
+- **PDF**: pypdf
+- **Scraping**: Selenium (LinkedIn merge)
+- **Sessions**: in-memory (default) or Redis (multi-worker)
+- **Rate limiting**: slowapi
+- **Logging**: stdlib `logging`, JSON-formatted in production via `python-json-logger`
+- **Frontend**: vanilla HTML/CSS/JS — no framework. Uses Inter (body) + Space Grotesk (display)
 
 ## Requirements
 
-- Python 3.8 or higher
-- Groq API key (free tier available at groq.com)
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- 2GB RAM minimum
-- Internet connection for AI processing
+- Python 3.12 (3.10+ should work)
+- Groq API key
+- For the LinkedIn merge feature: Chrome + a matching ChromeDriver on PATH
+- For multi-worker production: Redis 5+
 
 ## Installation
 
-### Standard Setup
+### conda (used in development)
 
 ```bash
-git clone <repository-url>
-cd resume-analyzer
+conda activate main
 pip install -r requirements.txt
-echo "GROQ_API_KEY=your_key_here" > .env
+cp .env.example .env   # then edit GROQ_API_KEY
 python main.py
 ```
 
-### Virtual Environment Setup (Recommended)
+### venv
 
 ```bash
 python -m venv venv
-
-# On Windows
+# Windows:
 venv\Scripts\activate
-
-# On macOS/Linux
+# macOS/Linux:
 source venv/bin/activate
 
 pip install -r requirements.txt
-echo "GROQ_API_KEY=your_key_here" > .env
+cp .env.example .env   # edit GROQ_API_KEY
 python main.py
 ```
 
 ## Configuration
 
-### API Key Setup
-
-1. Visit [console.groq.com](https://console.groq.com)
-2. Create a free account
-3. Generate a new API key
-4. Add to `.env` file:
-   ```
-   GROQ_API_KEY=your_api_key_here
-   ```
-
-### Environment Variables
-
-Create a `.env` file in the project root:
+Copy `.env.example` to `.env`. All settings have sensible defaults except `GROQ_API_KEY`.
 
 ```env
+# Required
 GROQ_API_KEY=your_groq_api_key
-GROQ_MODEL=llama-3.1-70b-versatile
-MAX_FILE_SIZE=10485760
-SESSION_TIMEOUT=3600
+
+# Model
+GROQ_MODEL=openai/gpt-oss-120b
+
+# Environment
+ENV=development                # "development" | "production"
+LOG_LEVEL=INFO
+LOG_JSON=false                 # true in prod for structured logs
+
+# Sessions
+SESSION_BACKEND=memory         # "memory" | "redis"
+SESSION_TIMEOUT=3600           # seconds (idle TTL)
+SESSION_CLEANUP_INTERVAL=300   # background sweep interval
+REDIS_URL=redis://localhost:6379/0
+
+# Limits
+MAX_FILE_SIZE=10485760         # 10 MB
+REQUEST_TIMEOUT=60             # per-LLM-call
+
+# Rate limiting (slowapi syntax)
+RATE_LIMIT_DEFAULT=60/minute
+RATE_LIMIT_UPLOAD=10/minute
+RATE_LIMIT_LLM=30/minute
+
+# CORS — comma-separated origins; blank disables CORS middleware
+CORS_ORIGINS=
 ```
+
+## Production Deployment
+
+### Single host (gunicorn)
+
+```bash
+ENV=production LOG_JSON=true gunicorn -c gunicorn_conf.py main:app
+```
+
+By default this spawns `(2 × CPU) + 1` workers.
+
+> ⚠️ **If you run more than one worker, set `SESSION_BACKEND=redis`.** The default
+> in-memory session store is per-process; without Redis, users will lose their
+> session randomly between requests as the load balancer round-robins them.
+
+### Docker
+
+```bash
+docker build -t resume-summarizer .
+docker run --rm -p 8000:8000 \
+  -e GROQ_API_KEY=$GROQ_API_KEY \
+  -e SESSION_BACKEND=redis \
+  -e REDIS_URL=redis://host:6379/0 \
+  resume-summarizer
+```
+
+The image runs as non-root `appuser`, exposes 8000, and uses
+`gunicorn_conf.py` as the entrypoint. JSON logs are enabled by default in the image.
+
+### Production checklist
+
+- [ ] `ENV=production` (hides `/docs` and `/redoc`)
+- [ ] `SESSION_BACKEND=redis` if `WEB_CONCURRENCY > 1`
+- [ ] `LOG_JSON=true`
+- [ ] `CORS_ORIGINS` set to your frontend origins
+- [ ] Reverse proxy (nginx/Caddy) terminating TLS
+- [ ] Rate limits tuned to your traffic shape
 
 ## Project Structure
 
 ```
-resume-analyzer/
-├── app/                    # Application core
-│   ├── handlers.py        # API route handlers
-│   ├── models.py          # Pydantic data models
-│   ├── services.py        # Business logic and AI integration
-│   ├── session_manager.py # Session management
-│   └── config.py          # Configuration settings
-├── src/                   # Business modules
-│   ├── utils/             # Utility functions
-│   │   └── pdf_qa_system.py
-│   ├── recommenders/      # Job recommendation engine
-│   │   └── job_recommender.py
-│   ├── scrapers/          # Web scraping modules
-│   │   └── linkedin_scraper.py
-│   └── builders/          # Profile building
-│       └── profile_builder.py
-├── static/                # Frontend assets
-│   ├── index.html         # Upload page
-│   ├── analysis.html      # Analysis results page
-│   ├── script.js          # Upload page logic
-│   ├── analysis.js        # Analysis page logic
-│   └── style.css          # Application styles
-├── docs/                  # Documentation
-├── tests/                 # Test suite
-├── main.py               # Application entry point
-├── requirements.txt      # Python dependencies
-└── .env                  # Environment variables (create this)
+resume-summarizer/
+├── app/                       # Web layer
+│   ├── config.py              # env-driven config + tokens
+│   ├── errors.py              # safe HTTP error helpers
+│   ├── handlers.py            # Resume/Chat/LinkedIn/Job handlers
+│   ├── logging_config.py      # JSON or plain stdlib logging
+│   ├── models.py              # Pydantic request models
+│   ├── screening_handlers.py  # Recruiter screening handlers
+│   ├── screening_routes.py    # /screening/* APIRouter
+│   ├── services.py            # PDF + LLM integration
+│   └── session_manager.py     # Memory + Redis backends
+├── src/                       # Domain modules
+│   ├── builders/              # ProfileBuilder (resume + LinkedIn merge)
+│   ├── parsers/               # ResumeParser, BatchScreeningSystem
+│   ├── recommenders/          # JobRecommender
+│   ├── scrapers/              # LinkedInScraper (Selenium)
+│   └── utils/                 # ATSChecker, PDF QA
+├── static/                    # Frontend (vanilla HTML/CSS/JS)
+│   ├── index.html             # Upload page
+│   ├── analysis.html          # Analysis results
+│   ├── jobs.html              # Standalone job tools
+│   ├── screening.html         # Recruiter batch screening
+│   ├── style.css              # Base styles
+│   ├── motion.css             # Animations + interactions
+│   ├── theme.css              # Arc/Apple-inspired theme overlay
+│   ├── motion.js              # Toasts, drag/drop, scroll reveal, ripple
+│   ├── script.js              # Upload page logic
+│   ├── analysis.js            # Analysis page logic
+│   ├── jobs.js                # Jobs page logic
+│   └── screening.js           # Screening page logic
+├── tests/                     # pytest suite
+├── docs/                      # Project documentation
+├── main.py                    # FastAPI entrypoint with lifespan
+├── gunicorn_conf.py           # Production server config
+├── Dockerfile                 # Production image
+├── .dockerignore
+├── .env.example               # Config template
+└── requirements.txt
 ```
 
-## API Endpoints
+## API Reference
 
-### Resume Operations
+### Candidate flow
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/upload` | POST | Upload and analyze resume PDF |
-| `/get-analysis` | POST | Retrieve analysis for session |
-| `/chat` | POST | Chat with AI about resume |
+| Method | Path | Body | Description |
+|--------|------|------|-------------|
+| POST | `/upload` | multipart `file`, `session_id` | Upload + parse resume |
+| POST | `/get-analysis` | `{session_id}` | Detailed AI career analysis |
+| POST | `/chat` | `{session_id, message}` | Chat about the resume |
+| POST | `/add-linkedin` | `{session_id, linkedin_url}` | Merge LinkedIn data |
+| POST | `/skip-linkedin` | `{session_id}` | Build profile from resume only |
+| POST | `/recommend-jobs` | `{session_id}` | Personalized job matches |
+| POST | `/check-ats` | form: `session_id`, `job_description`, `target_role?`, `ats_system?` | ATS compatibility score |
+| POST | `/ats-suggestions` | `{session_id, improvement_type}` | Targeted improvement tips |
 
-### Profile Enhancement
+### Standalone
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/add-linkedin` | POST | Add LinkedIn profile data |
-| `/skip-linkedin` | POST | Skip LinkedIn integration |
+| Method | Path | Body | Description |
+|--------|------|------|-------------|
+| POST | `/analyze-job` | form: `job_description`, `target_role?`, `analysis_type?` | Analyze a JD without a resume |
+| POST | `/market-insights` | form: `job_role`, `experience_level?`, `industry?`, `location?` | Salary + demand insights |
 
-### Job Recommendations
+### Recruiter screening
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/recommend-jobs` | POST | Get personalized job recommendations |
+| Method | Path | Body | Description |
+|--------|------|------|-------------|
+| POST | `/screening/parse-resume` | multipart `file` | Parse one resume |
+| POST | `/screening/screen-candidate` | multipart `file`, form `job_requirements` (JSON) | Score one candidate |
+| POST | `/screening/screen-batch` | multipart `files[]`, form `job_requirements` | Rank up to 50 candidates |
+| POST | `/screening/compare-candidates` | multipart `files[]`, form `job_requirements` | Side-by-side compare |
+| GET  | `/screening/job-requirements-template` | – | Sample requirements JSON |
 
-## Usage Guide
+### System
 
-### Basic Workflow
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Liveness check |
+| GET | `/docs` | OpenAPI UI (dev only) |
 
-1. **Upload Resume**
-   - Navigate to home page
-   - Upload PDF resume (max 10MB)
-   - Wait for processing (typically 5-10 seconds)
+## Workflows
 
-2. **Review Analysis**
-   - Automatic redirect to analysis page
-   - Review career trajectory and strengths
-   - Examine development areas and recommendations
+### As a candidate
 
-3. **LinkedIn Integration (Optional)**
-   - Add LinkedIn profile URL
-   - System merges data for enhanced analysis
-   - Or skip to continue with resume data only
+1. Drop a PDF resume on the upload card → analysis runs in ~5–10 seconds
+2. Auto-redirect to `/analysis.html` shows extracted profile + AI analysis
+3. Optionally add a LinkedIn URL to enrich the data
+4. Click **Generate Job Recommendations** for matched roles
+5. Use the chat fab to ask the AI questions about your profile
+6. Optionally run **Check ATS** with a target job description for an ATS score
 
-4. **Get Job Recommendations**
-   - Click "Generate Job Recommendations"
-   - Review matched positions
-   - Analyze skill gaps and salary ranges
+### As a recruiter
 
-5. **Interactive Chat**
-   - Use AI assistant for career questions
-   - Get personalized guidance
-   - Explore career options
+1. Open `/screening.html`
+2. Step 1 — define the role: title, required + preferred skills, experience range, degree
+3. Step 2 — upload up to 50 candidate PDFs
+4. Step 3 — review ranked candidates with skill match breakdowns
 
-### Best Practices
+### Best practices
 
-- Use text-based PDF resumes (not scanned images)
-- Ensure resume includes complete work history
-- Provide accurate LinkedIn profile URL if using integration
-- Ask specific questions in the chat interface
-- Review all recommendations before making career decisions
+- Use text-based PDFs (selectable text, not scanned images)
+- Include complete work history with dates
+- For ATS checks, paste the *full* job description, not just the title
+
+## Frontend
+
+The UI is vanilla HTML/CSS/JS with three layered stylesheets and a single
+interaction script:
+
+- **`style.css`** — base layout, components, original token system
+- **`motion.css`** — animations, transitions, toast styles, skeleton loaders, drag-and-drop visuals
+- **`theme.css`** — current redesign: glass cards, mesh-gradient background, deep navy hero, Space Grotesk display type, eyebrow labels on section headers
+- **`motion.js`** — scroll reveal, navbar elevation, ripple, count-up, drag-and-drop wiring, clipboard, toast API (`window.UI.toast()`)
+
+All animation respects `prefers-reduced-motion`.
 
 ## Troubleshooting
 
-### Common Issues
+**`GROQ_API_KEY not found in .env file`**
+Make sure `.env` exists in the project root and contains a valid key.
 
-**API Key Errors**
-```
-Error: GROQ_API_KEY not found
-Solution: Ensure .env file exists with valid API key
-```
+**Port 8000 already in use**
+Either kill the existing process or pass a different port:
+`uvicorn main:app --port 8001`.
 
-**Port Conflicts**
-```
-Error: Port 8000 already in use
-Solution: Change port in main.py or terminate existing process
-```
+**`Failed to extract text from PDF`**
+The file is a scanned image. Use a text-based PDF or run OCR first.
 
-**PDF Processing Failures**
-```
-Error: Failed to extract text from PDF
-Solution: Ensure PDF is text-based, not a scanned image
-```
+**Session expired / "No resume uploaded for this session"**
+Sessions live 1 hour by default (`SESSION_TIMEOUT`). Re-upload, or increase the value.
 
-**Session Expired**
-```
-Error: No resume uploaded for this session
-Solution: Upload resume again (sessions expire after 1 hour)
-```
+**LinkedIn extraction fails**
+Selenium needs Chrome + a matching chromedriver. The app falls back to
+"resume-only" automatically — no hard failure.
 
-### Debug Mode
+**Multi-worker session loss in production**
+You're hitting different workers between requests. Set `SESSION_BACKEND=redis`.
 
-Enable detailed logging:
+### Logs
 
-```python
-# In main.py
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
+Plain text in development; structured JSON when `LOG_JSON=true`. Useful fields:
+`incident_id`, `session`, `error`. Each 5xx response includes the incident id
+in `detail` so you can correlate.
 
-## Performance Optimization
+## Security
 
-- Sessions automatically cleaned up after 1 hour
-- PDF processing optimized for files up to 10MB
-- AI responses cached per session
-- Concurrent request handling via FastAPI
+- API keys live in `.env` only (excluded from Docker via `.dockerignore`)
+- File uploads validated by extension and 10 MB cap (`MAX_FILE_SIZE`)
+- Session ids strictly validated (`^[A-Za-z0-9_-]{8,128}$`)
+- Per-IP rate limiting on every endpoint
+- HTTP error responses don't leak `str(exception)` — incidents are logged with a UUID and the client gets a generic message + that UUID
+- Hidden `/docs` in production (`ENV=production`)
 
-## Security Considerations
-
-- API keys stored in environment variables
-- File uploads validated for type and size
-- Session data isolated per user
-- Temporary files cleaned up automatically
-- No persistent storage of sensitive data
+> Sessions are still **client-id-supplied** (the frontend generates a session id
+> and passes it on every request). For higher-security deployments, switch to
+> server-issued, httpOnly-cookie sessions before exposing this publicly.
 
 ## Development
 
-### Running Tests
+### Tests
 
 ```bash
 pytest tests/
 ```
 
-### Code Style
+### Style
 
 ```bash
-# Format code
 black app/ src/
-
-# Lint code
 pylint app/ src/
 ```
 
+### Adding endpoints
+
+1. Add request schema to `app/models.py`
+2. Add a method to the right handler class in `app/handlers.py` (or a new one)
+3. Wire it into `main.py` with a `@limiter.limit(...)` rate cap
+4. Update this README's API table
+
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## License
-
-This project is provided as-is for educational and professional use.
-
-## Support
-
-For technical issues or questions:
-- Review documentation in `docs/` folder
-- Check code comments for implementation details
-- Test with sample resumes before production use
+1. Fork
+2. `git checkout -b feature/your-thing`
+3. Add tests
+4. `pytest tests/` + `black .`
+5. Open a PR
 
 ## Changelog
 
-### Version 1.0.0
+### 1.1.0 (current)
+
+**Backend hardening (production-ready)**
+- Resolved `requirements.txt` merge conflict; added `gunicorn`, `slowapi`, `redis`, `python-json-logger`
+- Switched `PyPDF2` → `pypdf`
+- New: pluggable `SessionManager` with in-memory + Redis backends, thread-safe, background cleanup task
+- New: `errors.py` — incident-id'd safe HTTP errors (no `str(e)` leakage)
+- New: `logging_config.py` — JSON in prod, plain in dev
+- New: rate limiting via `slowapi` on every endpoint, per-route caps
+- Singleton `JobRecommender` and `ATSChecker` in app `lifespan` (no per-request construction)
+- `FileResponse` for HTML routes (proper caching headers, mime types)
+- Strict `session_id` validation (regex, 8–128 chars)
+- Replaced hardcoded fake market/job analysis stubs with real LLM calls
+- New `Dockerfile`, `.dockerignore`, `gunicorn_conf.py`, `.env.example`
+
+**Frontend redesign**
+- New `theme.css` — Arc/Apple-inspired glass system, deep navy hero, mesh-gradient body, Space Grotesk display type
+- Eyebrow labels + gradient titles on section headers across all pages
+- Bento grid for "How it works"
+- Inline upload progress (replaces full-screen overlay)
+- Drag-and-drop on upload card with live state machine
+- Toast system (`window.UI.toast()`) replaces all `alert()` calls
+- Scroll-reveal, ripple buttons, conic-gradient card halo on hover
+- Click-to-copy email on profile, count-up animations on stats
+- Slim glass navbar + slim 1-line footer
+- All motion respects `prefers-reduced-motion`
+
+### 1.0.0
+
 - Initial release
 - Resume upload and analysis
 - AI-powered career insights
 - Job recommendations
 - LinkedIn integration
 - Interactive chat assistant
-- Responsive web interface
 
 ---
 
-Built with FastAPI and Groq AI. Designed for modern job seekers and career professionals.
+Built with FastAPI + Groq. Frontend in vanilla HTML/CSS/JS.

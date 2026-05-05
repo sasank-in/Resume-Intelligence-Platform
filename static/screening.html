@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Screening System - Resume Analyzer Pro</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/motion.css">
+    <link rel="stylesheet" href="/static/theme.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -19,8 +21,8 @@
                     <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
                     <defs>
                         <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
-                            <stop offset="0%" stop-color="#1e40af"/>
-                            <stop offset="100%" stop-color="#0284c7"/>
+                            <stop offset="0%" stop-color="#4f46e5"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
                         </linearGradient>
                     </defs>
                 </svg>
@@ -61,9 +63,9 @@
 
             <!-- Job Requirements Section -->
             <section class="section">
-                <div class="section-header">
-                    <h2 class="section-title">Step 1: Define Job Requirements</h2>
-                    <p class="section-description">Specify the requirements for the position</p>
+                <div class="section-header" data-eyebrow="Step 1 — Define">
+                    <h2 class="section-title">Set the role you're hiring for</h2>
+                    <p class="section-description">Required skills, experience range, and degree expectations.</p>
                 </div>
 
                 <div class="linkedin-card">
@@ -109,9 +111,9 @@
 
             <!-- Upload Section -->
             <section class="section">
-                <div class="section-header">
-                    <h2 class="section-title">Step 2: Upload Resumes</h2>
-                    <p class="section-description">Upload one or multiple resume PDFs for screening</p>
+                <div class="section-header" data-eyebrow="Step 2 — Upload">
+                    <h2 class="section-title">Drop in your candidate resumes</h2>
+                    <p class="section-description">Up to 50 PDFs at once. We'll score and rank everyone.</p>
                 </div>
 
                 <div class="upload-card">
@@ -144,9 +146,9 @@
 
             <!-- Results Section -->
             <section class="section" id="resultsSection" style="display: none;">
-                <div class="section-header">
-                    <h2 class="section-title">Screening Results</h2>
-                    <p class="section-description">Ranked candidates with detailed analysis</p>
+                <div class="section-header" data-eyebrow="Step 3 — Results">
+                    <h2 class="section-title">Ranked candidates</h2>
+                    <p class="section-description">Scored against your requirements with skill match breakdowns.</p>
                 </div>
 
                 <!-- Summary Stats -->
@@ -183,6 +185,7 @@
         </div>
     </div>
 
+    <script src="/static/motion.js"></script>
     <script src="/static/screening.js"></script>
 </body>
 </html>

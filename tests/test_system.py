@@ -105,7 +105,7 @@ def test_groq_api():
         client = Groq(api_key=api_key)
         
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="openai/gpt-oss-120b",
             messages=[{"role": "user", "content": "Say 'API working' if you can read this"}],
             temperature=0.7,
             max_tokens=50

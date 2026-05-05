@@ -1,0 +1,693 @@
+/* =====================================================================
+   theme.css — Arc/Apple-inspired redesign layer.
+   Loaded LAST so it wins specificity contests with style.css/motion.css.
+   No layout-breaking changes; pure visual + a few structural overrides.
+   ===================================================================== */
+
+:root {
+    /* --- Brand: deeper indigo + violet, with electric accent --- */
+    --primary: #6366f1;
+    --primary-dark: #4338ca;
+    --primary-light: #a5b4fc;
+    --primary-tint: #eef2ff;
+    --secondary: #a855f7;
+    --secondary-dark: #7e22ce;
+    --accent: #22d3ee;          /* electric cyan, used very sparingly */
+
+    /* --- Surfaces: glassy whites over a colorful page --- */
+    --surface: rgba(255, 255, 255, 0.72);
+    --surface-solid: #ffffff;
+    --surface-elevated: rgba(255, 255, 255, 0.85);
+    --surface-muted: rgba(255, 255, 255, 0.55);
+    --surface-tint: rgba(99, 102, 241, 0.06);
+    --surface-dark: #0b1020;
+
+    /* --- Borders: hairline, slightly translucent --- */
+    --border: rgba(15, 23, 42, 0.08);
+    --border-strong: rgba(15, 23, 42, 0.14);
+    --border-glass: rgba(255, 255, 255, 0.5);
+
+    /* --- Type: bigger, tighter --- */
+    --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    --font-size-3xl: 2.25rem;
+    --font-size-4xl: 3rem;
+    --font-size-5xl: 4rem;
+    --font-size-6xl: 5rem;
+
+    /* --- Bigger radii, softer everywhere --- */
+    --radius-md: 1rem;
+    --radius-lg: 1.25rem;
+    --radius-xl: 1.5rem;
+    --radius-2xl: 2rem;
+
+    /* --- Shadows: layered with a subtle indigo tint --- */
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04),
+                 0 2px 6px rgba(15, 23, 42, 0.05);
+    --shadow:    0 2px 6px rgba(15, 23, 42, 0.05),
+                 0 8px 24px rgba(15, 23, 42, 0.07);
+    --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06),
+                 0 12px 36px rgba(99, 102, 241, 0.10);
+    --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.08),
+                 0 24px 56px rgba(99, 102, 241, 0.14);
+    --shadow-xl: 0 20px 48px rgba(15, 23, 42, 0.10),
+                 0 36px 80px rgba(99, 102, 241, 0.18);
+    --shadow-glow: 0 10px 32px rgba(99, 102, 241, 0.32);
+
+    --ring: 0 0 0 4px rgba(99, 102, 241, 0.20);
+}
+
+/* ============ Body: animated mesh gradient ============ */
+body {
+    background-color: #f6f5ff !important;
+    background-image:
+        radial-gradient(at 14% 8%, rgba(99, 102, 241, 0.18) 0, transparent 42%),
+        radial-gradient(at 86% 12%, rgba(168, 85, 247, 0.16) 0, transparent 48%),
+        radial-gradient(at 18% 92%, rgba(34, 211, 238, 0.10) 0, transparent 45%),
+        radial-gradient(at 92% 88%, rgba(236, 72, 153, 0.08) 0, transparent 50%) !important;
+    background-attachment: fixed !important;
+    background-size: 100% 100%;
+    color: #1e1b4b;
+    letter-spacing: -0.01em;
+}
+
+@keyframes mesh-drift {
+    0%, 100% { background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%; }
+    50%      { background-position: 4% 2%, 96% 4%, 2% 98%, 98% 96%; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    body { animation: mesh-drift 24s ease-in-out infinite; }
+}
+
+/* ============ Display type ============ */
+h1, h2, h3, .hero-title, .section-title, .profile-name, .upload-title,
+.how-it-works-title {
+    font-family: var(--font-display);
+    letter-spacing: -0.035em;
+    color: #0b1020;
+}
+
+/* ============ Navbar: slim glass ============ */
+.navbar {
+    background: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    border-bottom: 1px solid var(--border) !important;
+    box-shadow: none !important;
+}
+.navbar.is-scrolled {
+    background: rgba(255, 255, 255, 0.78) !important;
+    box-shadow: 0 2px 14px -8px rgba(15, 23, 42, 0.18) !important;
+}
+.nav-container { height: 60px !important; }
+.brand-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: 1.05rem !important;
+}
+
+/* ============ Hero: deep navy → indigo, cinematic, fades into page ============ */
+.hero {
+    background:
+        radial-gradient(at 18% 8%,  rgba(99, 102, 241, 0.55) 0, transparent 40%),
+        radial-gradient(at 82% 18%, rgba(168, 85, 247, 0.50) 0, transparent 45%),
+        radial-gradient(at 50% 100%,rgba(34, 211, 238, 0.18) 0, transparent 55%),
+        linear-gradient(160deg, #0b1020 0%, #1e1b4b 38%, #312e81 70%, #1e1b4b 100%) !important;
+    color: #fff !important;
+    padding: 7rem 0 9rem !important;
+    position: relative;
+    overflow: hidden;
+}
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-position: 14px 14px;
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    opacity: 0.7;
+    pointer-events: none;
+}
+.hero::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 140px;
+    background: linear-gradient(180deg, transparent 0%, #f6f5ff 100%);
+    pointer-events: none;
+}
+.hero-container { position: relative; z-index: 2; }
+
+.hero-title {
+    font-size: clamp(2.75rem, 6vw, 5rem) !important;
+    line-height: 0.98 !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.045em !important;
+    color: #fff !important;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.62) 100%) !important;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1.25rem !important;
+}
+.hero-subtitle {
+    font-size: 1.25rem !important;
+    color: rgba(255,255,255,0.74) !important;
+    max-width: 36rem;
+    line-height: 1.5;
+    margin-bottom: 2rem !important;
+}
+.hero-features {
+    gap: 0.6rem !important;
+}
+.feature-badge {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    padding: 0.5rem 0.9rem !important;
+    font-size: 0.85rem !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+.feature-badge:hover {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.28) !important;
+    transform: translateY(-1px);
+}
+
+/* Pull main content up under the hero fade */
+.main-content { padding: 1.5rem 0 4rem !important; margin-top: -4rem; position: relative; z-index: 3; }
+
+/* ============ Section titles ============ */
+.section-header {
+    margin-bottom: 1.75rem !important;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.section-header > * { margin: 0 !important; }
+
+/* Eyebrow label sits above the title — uses display font, primary color */
+.section-header::before {
+    content: attr(data-eyebrow);
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--primary);
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+}
+.section-header:not([data-eyebrow])::before { display: none; }
+
+.section-title {
+    font-size: clamp(1.85rem, 3.2vw, 2.5rem) !important;
+    font-weight: 700 !important;
+    line-height: 1.08 !important;
+    padding-left: 0 !important;
+    letter-spacing: -0.035em !important;
+    background: linear-gradient(180deg, #0b1020 0%, #312e81 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.section-title::before { display: none !important; }
+.section-description {
+    font-size: 1rem !important;
+    color: #475569 !important;
+    max-width: 38rem;
+    line-height: 1.55;
+}
+
+/* Enhanced hero-style section header (used on screening/jobs landing rows) */
+.section-header-enhanced {
+    background: var(--surface) !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid var(--border-glass) !important;
+    border-radius: var(--radius-2xl) !important;
+    box-shadow: var(--shadow) !important;
+    padding: 1.75rem 2rem !important;
+    position: relative;
+    overflow: hidden;
+}
+.section-header-enhanced::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.10) 0, transparent 55%),
+        radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.08) 0, transparent 55%);
+    pointer-events: none;
+    border-radius: inherit;
+}
+.section-header-enhanced > * { position: relative; z-index: 1; }
+.section-header-enhanced .section-title {
+    margin-bottom: 0.35rem !important;
+}
+
+.section-icon-badge {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%) !important;
+    box-shadow: var(--shadow-glow) !important;
+    border-radius: var(--radius-lg) !important;
+    width: 56px !important;
+    height: 56px !important;
+}
+
+/* ============ Sub-headers inside cards (ats-header, linkedin-content h3, chatbot-header-info h3) ============ */
+.ats-header,
+.linkedin-content h3,
+.profile-summary h4,
+.how-it-works-title,
+.feature-content h4,
+.timeline-content h4,
+.card-title,
+.merged-subtitle {
+    font-family: var(--font-display) !important;
+    letter-spacing: -0.025em !important;
+    color: #0b1020 !important;
+}
+.ats-header h3 {
+    font-family: var(--font-display) !important;
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.03em !important;
+    color: #0b1020 !important;
+    margin-bottom: 0.35rem !important;
+}
+.ats-header p {
+    color: #64748b !important;
+    font-size: 0.92rem !important;
+}
+.ats-icon {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-glow) !important;
+    padding: 0.85rem !important;
+}
+.linkedin-content h3 {
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.4rem !important;
+}
+.linkedin-content > p {
+    color: #64748b !important;
+}
+.linkedin-icon {
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 8px 22px rgba(10, 102, 194, 0.30);
+}
+.profile-summary h4 {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+}
+.timeline-content h4 {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+}
+.card-title {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+}
+.chatbot-header {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+.chatbot-header-info h3 {
+    font-family: var(--font-display) !important;
+    letter-spacing: -0.02em !important;
+}
+
+/* ============ Glass card system ============ */
+.upload-card,
+.linkedin-card,
+.profile-card-modern,
+.how-it-works-card,
+.info-card,
+.analysis-card,
+.education-card,
+.job-card,
+.insight-card,
+.ats-analysis-card,
+.ats-score-card {
+    background: var(--surface) !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid var(--border-glass) !important;
+    border-radius: var(--radius-2xl) !important;
+    box-shadow: var(--shadow) !important;
+    position: relative;
+    transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.upload-card:hover,
+.linkedin-card:hover,
+.how-it-works-card:hover,
+.info-card:hover,
+.analysis-card:hover,
+.education-card:hover,
+.job-card:hover,
+.insight-card:hover,
+.ats-analysis-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+}
+
+/* Animated conic gradient halo on card hover */
+.upload-card::before,
+.linkedin-card::before,
+.how-it-works-card::before,
+.info-card::before,
+.analysis-card::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(from var(--angle, 0deg),
+        transparent 0%,
+        rgba(99, 102, 241, 0.55) 25%,
+        rgba(168, 85, 247, 0.55) 50%,
+        rgba(34, 211, 238, 0.45) 75%,
+        transparent 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 320ms ease;
+    pointer-events: none;
+}
+.upload-card:hover::before,
+.linkedin-card:hover::before,
+.how-it-works-card:hover::before,
+.info-card:hover::before,
+.analysis-card:hover::before {
+    opacity: 1;
+    animation: card-spin 6s linear infinite;
+}
+@property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+@keyframes card-spin {
+    to { --angle: 360deg; }
+}
+
+/* ============ Upload area: bigger drop zone, dotted border ============ */
+.upload-area {
+    border: 1.5px dashed var(--border-strong) !important;
+    border-radius: var(--radius-xl) !important;
+    background:
+        radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.08) 0, transparent 60%),
+        rgba(255, 255, 255, 0.5) !important;
+    margin: 1rem !important;
+    padding: 3rem 2rem !important;
+    transition: border-color 220ms ease, background 220ms ease, transform 220ms ease;
+}
+.upload-area:hover {
+    border-color: var(--primary) !important;
+    background:
+        radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.16) 0, transparent 60%),
+        rgba(255, 255, 255, 0.7) !important;
+}
+.upload-icon { color: var(--primary) !important; }
+.upload-title {
+    font-size: 1.35rem !important;
+    font-weight: 600 !important;
+    color: #0b1020 !important;
+    margin-bottom: 0.5rem !important;
+}
+.upload-subtitle { color: #64748b !important; font-size: 0.9rem !important; }
+
+/* ============ Bento grid for "How it works" ============ */
+.how-it-works-card {
+    padding: 1.5rem !important;
+}
+.how-it-works-title {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.25rem !important;
+}
+.how-it-works-description {
+    color: #64748b !important;
+    margin-bottom: 1.25rem !important;
+    font-size: 0.95rem !important;
+}
+.features-list {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 0.75rem !important;
+}
+.feature-item {
+    background: rgba(255, 255, 255, 0.55) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 1rem !important;
+    transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
+}
+.feature-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(99, 102, 241, 0.32) !important;
+    background: rgba(255, 255, 255, 0.78) !important;
+}
+.feature-item:first-child {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+    background:
+        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.18) 0, transparent 60%),
+        rgba(255, 255, 255, 0.7) !important;
+}
+.feature-item .feature-icon {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-md) !important;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%) !important;
+    color: #fff !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    box-shadow: var(--shadow-glow);
+}
+.feature-item h4 {
+    font-family: var(--font-display);
+    font-size: 1rem !important;
+    margin-bottom: 0.25rem !important;
+    letter-spacing: -0.02em;
+}
+.feature-item p {
+    font-size: 0.85rem !important;
+    color: #64748b !important;
+    line-height: 1.5;
+}
+
+/* ============ Stats banner — replaced via CSS with one trust line ============ */
+.stats-banner {
+    background: var(--surface) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glass) !important;
+    border-radius: var(--radius-2xl) !important;
+    padding: 1.5rem 2rem !important;
+    box-shadow: var(--shadow-sm) !important;
+    text-align: center;
+    overflow: visible;
+}
+.stats-banner::before { display: none !important; }
+.stats-header { margin-bottom: 1rem !important; }
+.stats-header h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem !important;
+    color: #475569 !important;
+    font-weight: 500 !important;
+    text-shadow: none !important;
+    letter-spacing: -0.01em;
+}
+.stats-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1rem !important;
+}
+.stat-item {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: none !important;
+    padding: 1rem !important;
+    border-radius: var(--radius-lg) !important;
+}
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.75) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-sm) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+}
+.stat-item.highlight {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%) !important;
+    border: none !important;
+    color: #fff !important;
+}
+.stat-item.highlight .stat-value,
+.stat-item.highlight .stat-label { color: #fff !important; }
+.stat-value {
+    font-family: var(--font-display);
+    color: #0b1020 !important;
+    font-size: 2rem !important;
+    text-shadow: none !important;
+    letter-spacing: -0.03em !important;
+}
+.stat-label {
+    color: #64748b !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-weight: 500 !important;
+    font-size: 0.8rem !important;
+}
+
+/* ============ Buttons ============ */
+.btn {
+    border-radius: 999px !important;
+    padding: 0.7rem 1.4rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.005em;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #4338ca 0%, #6366f1 50%, #a855f7 100%) !important;
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    color: #fff !important;
+    box-shadow: var(--shadow-glow) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    transition: background-position 0.45s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+.btn-primary:hover {
+    background-position: 100% 50%;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(99, 102, 241, 0.42) !important;
+}
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.7) !important;
+    color: #0b1020 !important;
+    border: 1px solid var(--border-strong) !important;
+    backdrop-filter: blur(12px);
+}
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: var(--primary) !important;
+    color: var(--primary-dark) !important;
+}
+.btn-large {
+    padding: 0.95rem 1.75rem !important;
+    font-size: 0.95rem !important;
+}
+
+/* ============ Inputs ============ */
+.input-field, input[type="text"], input[type="url"], input[type="email"],
+input[type="number"], select, textarea {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid var(--border-strong) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 0.75rem 1rem !important;
+    backdrop-filter: blur(8px);
+}
+.input-field:focus, input:focus, select:focus, textarea:focus {
+    background: #fff !important;
+    border-color: var(--primary) !important;
+    box-shadow: var(--ring) !important;
+    outline: none !important;
+}
+
+/* ============ Skill badges ============ */
+.skill-badge {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid var(--border) !important;
+    color: #1e1b4b !important;
+    padding: 0.4rem 0.85rem !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(8px);
+    font-weight: 500 !important;
+}
+.skill-badge:hover {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+    box-shadow: var(--shadow-glow) !important;
+}
+
+/* ============ Profile header (the gradient banner inside profile card) ============ */
+.profile-header-modern {
+    background:
+        radial-gradient(at 100% 0%, rgba(34, 211, 238, 0.30) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(168, 85, 247, 0.35) 0, transparent 50%),
+        linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%) !important;
+    padding: 2.25rem !important;
+}
+.profile-name {
+    font-family: var(--font-display);
+    color: #fff !important;
+    font-size: 2rem !important;
+    letter-spacing: -0.025em !important;
+}
+.profile-title { color: rgba(255,255,255,0.78) !important; }
+.meta-item { color: rgba(255,255,255,0.85) !important; }
+
+/* ============ Footer: slim ============ */
+.footer {
+    background: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border) !important;
+    padding: 1.5rem 0 !important;
+    margin-top: 4rem;
+}
+.footer-content {
+    display: none !important;
+}
+.footer-bottom {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 0 !important;
+    border-top: none !important;
+}
+.footer-text {
+    font-size: 0.85rem !important;
+    color: #64748b !important;
+}
+.footer-links { gap: 1.5rem !important; }
+.footer-link {
+    font-size: 0.85rem !important;
+    color: #475569 !important;
+}
+.footer-link:hover { color: var(--primary) !important; }
+
+/* ============ Toasts (refresh look) ============ */
+.toast {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(14px);
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+/* ============ Selection ============ */
+::selection { background: var(--primary); color: #fff; }
+
+/* ============ Mobile tightening ============ */
+@media (max-width: 720px) {
+    .hero { padding: 5rem 0 6rem !important; }
+    .hero-title { font-size: clamp(2.25rem, 9vw, 3.5rem) !important; }
+    .hero-subtitle { font-size: 1.05rem !important; }
+    .features-list { grid-template-columns: 1fr !important; }
+    .feature-item:first-child { grid-column: 1 !important; grid-row: auto !important; }
+    .upload-with-features { grid-template-columns: 1fr !important; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}

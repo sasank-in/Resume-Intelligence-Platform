@@ -6,9 +6,11 @@
     <meta name="description" content="Jobs & ATS Checker - AI-powered job matching and ATS compatibility">
     <title>Find Jobs - Resume Analyzer Pro</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/motion.css">
+    <link rel="stylesheet" href="/static/theme.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -20,8 +22,8 @@
                     <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
                     <defs>
                         <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
-                            <stop offset="0%" stop-color="#1e40af"/>
-                            <stop offset="100%" stop-color="#0284c7"/>
+                            <stop offset="0%" stop-color="#4f46e5"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
                         </linearGradient>
                     </defs>
                 </svg>
@@ -78,9 +80,9 @@
             
             <!-- ATS Checker Section -->
             <section class="section" id="ats-section">
-                <div class="section-header">
-                    <h2 class="section-title">Job Description Analyzer</h2>
-                    <p class="section-description">Analyze any job posting to understand requirements and expectations</p>
+                <div class="section-header" data-eyebrow="Job Intelligence">
+                    <h2 class="section-title">Decode any job description</h2>
+                    <p class="section-description">Paste a posting to extract requirements, ATS keywords, and market context.</p>
                 </div>
                 
                 <div class="ats-checker-card">
@@ -149,9 +151,9 @@ We are seeking a Senior Software Engineer with 5+ years of experience in Python,
 
             <!-- Job Market Insights Section -->
             <section class="section" id="jobs-section">
-                <div class="section-header">
-                    <h2 class="section-title">Job Market Insights</h2>
-                    <p class="section-description">Get insights about roles, salaries, and career paths</p>
+                <div class="section-header" data-eyebrow="Market Data">
+                    <h2 class="section-title">See where roles are headed</h2>
+                    <p class="section-description">Salary ranges, demand trends, and career trajectories for any role.</p>
                 </div>
                 
                 <div class="job-recommendations-card">
@@ -265,6 +267,7 @@ We are seeking a Senior Software Engineer with 5+ years of experience in Python,
         </div>
     </footer>
     
+    <script src="/static/motion.js"></script>
     <script src="/static/jobs.js"></script>
 </body>
 </html>

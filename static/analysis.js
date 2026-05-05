@@ -48,14 +48,13 @@ async function loadAnalysisData() {
             showChatbotFab();
         } else {
             console.error('Failed to load analysis:', data);
-            alert('Failed to load analysis data. Please try uploading your resume again.');
-            window.location.href = '/';
+            if (window.UI) UI.toast('Failed to load analysis. Redirecting…', { type: 'error' });
+            setTimeout(() => { window.location.href = '/'; }, 1200);
         }
     } catch (error) {
         console.error('Error loading analysis:', error);
-        console.error('Error stack:', error.stack);
-        alert('Error loading analysis data. Please try again.');
-        window.location.href = '/';
+        if (window.UI) UI.toast('Error loading analysis. Redirecting…', { type: 'error' });
+        setTimeout(() => { window.location.href = '/'; }, 1200);
     }
 }
 
@@ -65,7 +64,13 @@ function displayResumeData(data) {
         document.getElementById('candidateName').textContent = data.name || 'Name not found';
         document.getElementById('candidateHeadline').textContent = data.headline || 'Professional';
         document.getElementById('candidateLocation').textContent = data.location || 'Location not specified';
-        document.getElementById('candidateEmail').textContent = data.email || 'Email not provided';
+        const emailText = data.email || 'Email not provided';
+        document.getElementById('candidateEmail').textContent = emailText;
+        const emailWrap = document.getElementById('candidateEmailWrap');
+        if (emailWrap) {
+            if (data.email) emailWrap.setAttribute('data-copy', data.email);
+            else emailWrap.removeAttribute('data-copy');
+        }
         document.getElementById('candidateSummary').textContent = data.summary || 'Professional with experience in their field.';
         document.getElementById('profileSection').style.display = 'block';
     }
@@ -452,6 +457,7 @@ async function addLinkedInProfile() {
         if (response.ok) {
             statusEl.textContent = '✓ LinkedIn profile added successfully!';
             statusEl.className = 'linkedin-status success';
+            if (window.UI) UI.toast('LinkedIn profile merged', { type: 'success' });
             
             if (data.unified_profile) {
                 displayResumeData(data.unified_profile);
@@ -512,7 +518,7 @@ async function skipLinkedIn() {
 // Job Recommendations
 async function getJobRecommendations() {
     if (!profileBuilt) {
-        alert('Please complete profile building first');
+        if (window.UI) UI.toast('Please complete profile building first', { type: 'info' });
         return;
     }
     
@@ -639,7 +645,7 @@ async function checkATSCompatibility() {
     const atsSystem = document.getElementById('atsSystem').value;
     
     if (!jobDescription) {
-        alert('Please enter a job description');
+        if (window.UI) UI.toast('Please enter a job description', { type: 'info' });
         return;
     }
     

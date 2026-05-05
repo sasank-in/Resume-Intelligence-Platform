@@ -1,6 +1,10 @@
 import os
 import json
-import PyPDF2
+from pypdf import PdfReader as _PdfReader
+
+
+class PyPDF2:  # compatibility shim
+    PdfReader = _PdfReader
 from groq import Groq
 from dotenv import load_dotenv
 

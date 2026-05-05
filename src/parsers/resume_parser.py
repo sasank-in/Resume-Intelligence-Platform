@@ -6,8 +6,12 @@ import re
 import json
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
-import PyPDF2
+from pypdf import PdfReader as _PdfReader
 from pathlib import Path
+
+
+class PyPDF2:  # compatibility shim — pypdf is API-compatible for PdfReader
+    PdfReader = _PdfReader
 
 
 class ResumeParser:

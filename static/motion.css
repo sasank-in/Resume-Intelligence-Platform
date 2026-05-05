@@ -1,0 +1,417 @@
+/* =====================================================================
+   motion.css — animations, transitions, micro-interactions.
+   Loaded AFTER style.css so it can override hover/transition values.
+   All motion respects prefers-reduced-motion.
+   ===================================================================== */
+
+:root {
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --motion-fast: 180ms;
+    --motion: 260ms;
+    --motion-slow: 420ms;
+}
+
+/* ---------- Reduced motion: disable everything cleanly ---------- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ---------- Scroll reveal ---------- */
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity var(--motion-slow) var(--ease-out),
+                transform var(--motion-slow) var(--ease-out);
+    will-change: opacity, transform;
+}
+[data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+}
+[data-reveal-delay="1"].is-visible { transition-delay: 80ms; }
+[data-reveal-delay="2"].is-visible { transition-delay: 160ms; }
+[data-reveal-delay="3"].is-visible { transition-delay: 240ms; }
+[data-reveal-delay="4"].is-visible { transition-delay: 320ms; }
+
+/* ---------- Navbar elevates on scroll ---------- */
+.navbar {
+    transition: background-color var(--motion) var(--ease-out),
+                box-shadow var(--motion) var(--ease-out),
+                backdrop-filter var(--motion) var(--ease-out);
+}
+.navbar.is-scrolled {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: saturate(160%) blur(10px);
+    -webkit-backdrop-filter: saturate(160%) blur(10px);
+    box-shadow: 0 2px 14px -6px rgba(15, 23, 42, 0.18);
+}
+
+/* nav link active underline */
+.nav-link {
+    position: relative;
+}
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 6px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform var(--motion) var(--ease-out);
+}
+.nav-link:hover::after,
+.nav-link.is-active::after {
+    transform: scaleX(1);
+}
+
+/* ---------- Anchor scroll offset for sticky navbar ---------- */
+section[id] { scroll-margin-top: 88px; }
+
+/* ---------- Buttons: ripple + loading ---------- */
+.btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--motion-fast) var(--ease-out),
+                box-shadow var(--motion-fast) var(--ease-out),
+                background-color var(--motion-fast) var(--ease-out),
+                opacity var(--motion-fast) var(--ease-out);
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn .ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-out 600ms var(--ease-out);
+    background: rgba(255, 255, 255, 0.45);
+    pointer-events: none;
+}
+@keyframes ripple-out {
+    to { transform: scale(2.4); opacity: 0; }
+}
+
+.btn[data-loading="true"] {
+    color: transparent !important;
+    pointer-events: none;
+    opacity: 0.85;
+}
+.btn[data-loading="true"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 700ms linear infinite;
+}
+.btn.btn-secondary[data-loading="true"]::after {
+    border-color: rgba(30, 64, 175, 0.25);
+    border-top-color: var(--primary);
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------- Card lift ---------- */
+.card-hover,
+.upload-card,
+.how-it-works-card,
+.linkedin-card,
+.profile-card-modern,
+.feature-item {
+    transition: transform var(--motion) var(--ease-out),
+                box-shadow var(--motion) var(--ease-out);
+}
+.card-hover:hover,
+.upload-card:hover,
+.how-it-works-card:hover,
+.linkedin-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* ---------- Upload drag state ---------- */
+.upload-area {
+    transition: border-color var(--motion) var(--ease-out),
+                background-color var(--motion) var(--ease-out),
+                transform var(--motion) var(--ease-out);
+}
+.upload-card.is-dragging .upload-area {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.06);
+    transform: scale(1.01);
+}
+.upload-card.is-dragging .upload-icon {
+    animation: bob 900ms ease-in-out infinite;
+    color: var(--primary);
+}
+@keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+/* Inline upload progress (replaces full-screen overlay) */
+.upload-progress {
+    margin-top: 1rem;
+    height: 6px;
+    background: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    display: none;
+}
+.upload-progress.is-active { display: block; }
+.upload-progress-bar {
+    height: 100%;
+    width: 30%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: inherit;
+    animation: indeterminate 1400ms var(--ease-in-out) infinite;
+}
+@keyframes indeterminate {
+    0%   { margin-left: -30%; width: 30%; }
+    50%  { margin-left: 30%; width: 50%; }
+    100% { margin-left: 100%; width: 30%; }
+}
+
+.upload-status-line {
+    margin-top: .75rem;
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    min-height: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    transition: color var(--motion) var(--ease-out);
+}
+.upload-status-line.is-success { color: var(--success); }
+.upload-status-line.is-error { color: var(--error); }
+
+/* ---------- Toasts ---------- */
+.toast-container {
+    position: fixed;
+    top: 84px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: min(360px, calc(100vw - 32px));
+    pointer-events: none;
+}
+.toast {
+    pointer-events: auto;
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 12px 14px 12px 14px;
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: var(--font-size-sm);
+    color: var(--gray-800);
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform var(--motion) var(--ease-out),
+                opacity var(--motion) var(--ease-out);
+}
+.toast.is-visible { transform: none; opacity: 1; }
+.toast.is-leaving { transform: translateX(120%); opacity: 0; }
+.toast.toast-success { border-left-color: var(--success); }
+.toast.toast-error   { border-left-color: var(--error); }
+.toast.toast-info    { border-left-color: var(--info); }
+.toast .toast-icon {
+    font-size: 16px;
+    line-height: 22px;
+    text-align: center;
+}
+.toast .toast-close {
+    background: none;
+    border: 0;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--gray-500);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+.toast .toast-close:hover { color: var(--gray-800); background: var(--gray-100); }
+
+/* ---------- Skeleton loaders ---------- */
+.skeleton {
+    position: relative;
+    background: var(--gray-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+    color: transparent !important;
+}
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.7) 50%,
+        transparent 100%);
+    transform: translateX(-100%);
+    animation: shimmer 1.4s linear infinite;
+}
+@keyframes shimmer {
+    to { transform: translateX(100%); }
+}
+.skeleton-line { height: 14px; margin: 8px 0; }
+.skeleton-line.lg { height: 20px; }
+.skeleton-line.sm { height: 10px; }
+.skeleton-block { height: 80px; }
+
+/* ---------- Stat counters: pop on enter ---------- */
+.stat-value {
+    transition: transform var(--motion) var(--ease-out);
+}
+.stat-item.is-visible .stat-value {
+    animation: stat-pop 600ms var(--ease-out);
+}
+@keyframes stat-pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    60% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+/* ---------- Skill badges: stagger ---------- */
+.skill-badge {
+    animation: pop-in 380ms var(--ease-out) both;
+    transition: transform var(--motion-fast) var(--ease-out),
+                box-shadow var(--motion-fast) var(--ease-out);
+}
+.skill-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+@keyframes pop-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.96); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Timeline reveal ---------- */
+.timeline-item {
+    animation: slide-in-left 500ms var(--ease-out) both;
+}
+@keyframes slide-in-left {
+    from { opacity: 0; transform: translateX(-16px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Chat ---------- */
+.chat-message,
+.chat-bubble {
+    animation: bubble-in 320ms var(--ease-out) both;
+}
+@keyframes bubble-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+.typing-indicator,
+.chatbot-typing {
+    display: inline-flex;
+    gap: 4px;
+    padding: 8px 12px;
+    background: var(--gray-100);
+    border-radius: var(--radius-full);
+    align-items: center;
+    align-self: flex-start;
+    margin: 4px 0;
+}
+.typing-indicator span,
+.chatbot-typing span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gray-500);
+    animation: typing-bounce 1100ms var(--ease-in-out) infinite;
+}
+.typing-indicator span:nth-child(2),
+.chatbot-typing span:nth-child(2) { animation-delay: 150ms; }
+.typing-indicator span:nth-child(3),
+.chatbot-typing span:nth-child(3) { animation-delay: 300ms; }
+
+.chatbot-message {
+    animation: bubble-in 320ms var(--ease-out) both;
+}
+@keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.55; }
+    30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* ---------- Copy-to-clipboard popover ---------- */
+.copy-target {
+    position: relative;
+    cursor: pointer;
+    transition: color var(--motion-fast) var(--ease-out);
+}
+.copy-target:hover { color: var(--primary); }
+.copy-target.copied::after {
+    content: "Copied!";
+    position: absolute;
+    left: 50%; bottom: calc(100% + 6px);
+    transform: translateX(-50%) translateY(4px);
+    background: var(--gray-900);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+    opacity: 0;
+    animation: copy-pop 1200ms var(--ease-out);
+    pointer-events: none;
+    white-space: nowrap;
+}
+@keyframes copy-pop {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(4px); }
+    15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    80%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+}
+
+/* ---------- Hero subtle entrance ---------- */
+.hero-title    { animation: rise-in 600ms var(--ease-out) both; }
+.hero-subtitle { animation: rise-in 600ms 80ms var(--ease-out) both; }
+.hero-features { animation: rise-in 600ms 160ms var(--ease-out) both; }
+@keyframes rise-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.feature-badge {
+    transition: transform var(--motion-fast) var(--ease-out),
+                background-color var(--motion-fast) var(--ease-out);
+}
+.feature-badge:hover {
+    transform: translateY(-2px);
+}
+
+/* ---------- Inputs focus glow ---------- */
+.input-field, input[type="text"], input[type="url"], input[type="email"], textarea {
+    transition: border-color var(--motion-fast) var(--ease-out),
+                box-shadow var(--motion-fast) var(--ease-out),
+                background-color var(--motion-fast) var(--ease-out);
+}
+.input-field:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.14);
+}

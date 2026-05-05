@@ -46,7 +46,10 @@ class ATSChecker:
         Returns:
             Detailed ATS compatibility report
         """
-        print(f"🔍 Analyzing ATS compatibility for {target_role or 'position'}...")
+        import logging
+        logging.getLogger(__name__).info(
+            "ats_analyze_start", extra={"target_role": target_role or "position"}
+        )
         
         # Extract job requirements using AI
         job_requirements = self._extract_job_requirements(job_description, target_role)

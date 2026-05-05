@@ -6,9 +6,11 @@
     <meta name="description" content="Professional AI-powered resume analysis and job recommendation system">
     <title>Resume Analyzer Pro - AI Career Intelligence Platform</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/motion.css">
+    <link rel="stylesheet" href="/static/theme.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -20,8 +22,8 @@
                     <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
                     <defs>
                         <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
-                            <stop offset="0%" stop-color="#1e40af"/>
-                            <stop offset="100%" stop-color="#0284c7"/>
+                            <stop offset="0%" stop-color="#4f46e5"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
                         </linearGradient>
                     </defs>
                 </svg>
@@ -79,14 +81,14 @@
             
             <!-- Upload Section -->
             <section class="section" id="upload">
-                <div class="section-header">
-                    <h2 class="section-title">Resume Analysis</h2>
-                    <p class="section-description">Upload your PDF resume to get comprehensive AI analysis</p>
+                <div class="section-header" data-eyebrow="Step 1 — Upload">
+                    <h2 class="section-title">Analyze your resume in seconds</h2>
+                    <p class="section-description">Drop a PDF and our AI extracts skills, experience, and key insights instantly.</p>
                 </div>
                 
                 <div class="upload-with-features">
                     <!-- Upload Card -->
-                    <div class="upload-card">
+                    <div class="upload-card" data-reveal>
                         <input type="file" id="resumeFile" accept=".pdf" hidden>
                         <div class="upload-area" onclick="document.getElementById('resumeFile').click()">
                             <svg class="upload-icon" width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -109,17 +111,22 @@
                         <div class="upload-tips">
                             <small>💡 <strong>Tips:</strong> Use PDFs with selectable text (not scanned images) for best results</small>
                         </div>
-                        
+
+                        <div class="upload-progress" id="uploadProgress" aria-hidden="true">
+                            <div class="upload-progress-bar"></div>
+                        </div>
+                        <div class="upload-status-line" id="uploadStatus" aria-live="polite"></div>
+
                         <p id="fileName" class="file-name"></p>
                     </div>
 
                     <!-- How It Works -->
-                    <div class="how-it-works-card">
+                    <div class="how-it-works-card" data-reveal data-reveal-delay="1">
                         <h3 class="how-it-works-title">How it works</h3>
                         <p class="how-it-works-description">Our AI-powered system analyzes your resume in three intelligent steps</p>
-                        
+
                         <div class="features-list">
-                            <div class="feature-item">
+                            <div class="feature-item" data-reveal data-reveal-delay="1">
                                 <div class="feature-icon">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -131,7 +138,7 @@
                                 </div>
                             </div>
 
-                            <div class="feature-item">
+                            <div class="feature-item" data-reveal data-reveal-delay="2">
                                 <div class="feature-icon">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -143,7 +150,7 @@
                                 </div>
                             </div>
 
-                            <div class="feature-item">
+                            <div class="feature-item" data-reveal data-reveal-delay="3">
                                 <div class="feature-icon">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -158,22 +165,22 @@
                     </div>
                 </div>
 
-                <!-- Statistics Banner (Moved to Bottom) -->
-                <div class="stats-banner">
+                <!-- Statistics Banner -->
+                <div class="stats-banner" data-reveal>
                     <div class="stats-header">
                         <h3>Join 50,000+ Professionals</h3>
                     </div>
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <div class="stat-value">95%</div>
+                            <div class="stat-value" data-count="95" data-suffix="%">0%</div>
                             <div class="stat-label">Success Rate</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">500+</div>
+                            <div class="stat-value" data-count="500" data-suffix="+">0+</div>
                             <div class="stat-label">Job Categories</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">10s</div>
+                            <div class="stat-value" data-count="10" data-suffix="s">0s</div>
                             <div class="stat-label">Fast Analysis</div>
                         </div>
                         <div class="stat-item highlight">
@@ -190,8 +197,8 @@
                                 <svg class="loading-svg" viewBox="0 0 100 100">
                                     <defs>
                                         <linearGradient id="loadingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stop-color="#1e40af"/>
-                                            <stop offset="100%" stop-color="#0284c7"/>
+                                            <stop offset="0%" stop-color="#4f46e5"/>
+                                            <stop offset="100%" stop-color="#8b5cf6"/>
                                         </linearGradient>
                                     </defs>
                                     <circle class="loading-circle-bg" cx="50" cy="50" r="45"/>
@@ -271,6 +278,7 @@
     </footer>
 
     
+    <script src="/static/motion.js"></script>
     <script src="/static/script.js"></script>
 </body>
 </html>

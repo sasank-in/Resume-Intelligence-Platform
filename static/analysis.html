@@ -6,9 +6,11 @@
     <meta name="description" content="Resume Analysis Results - AI-powered insights">
     <title>Resume Analysis Results - Resume Analyzer Pro</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/motion.css">
+    <link rel="stylesheet" href="/static/theme.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -20,8 +22,8 @@
                     <path d="M10 12h12M10 16h12M10 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
                     <defs>
                         <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
-                            <stop offset="0%" stop-color="#1e40af"/>
-                            <stop offset="100%" stop-color="#0284c7"/>
+                            <stop offset="0%" stop-color="#4f46e5"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
                         </linearGradient>
                     </defs>
                 </svg>
@@ -47,9 +49,9 @@
             
             <!-- LinkedIn Section -->
             <section class="section" id="linkedinSection" style="display: none;">
-                <div class="section-header">
-                    <h2 class="section-title">Enhance Your Profile</h2>
-                    <p class="section-description">Add your LinkedIn profile for comprehensive analysis (Optional)</p>
+                <div class="section-header" data-eyebrow="Optional Enrichment">
+                    <h2 class="section-title">Enhance your profile</h2>
+                    <p class="section-description">Add a LinkedIn URL to merge richer data into your analysis.</p>
                 </div>
                 
                 <div class="linkedin-card">
@@ -78,9 +80,9 @@
             
             <!-- Profile Section -->
             <section class="section" id="profileSection" style="display: none;">
-                <div class="section-header">
-                    <h2 class="section-title">Candidate Profile</h2>
-                    <p class="section-description">Comprehensive overview of professional background</p>
+                <div class="section-header" data-eyebrow="Profile">
+                    <h2 class="section-title">Your candidate profile</h2>
+                    <p class="section-description">Pulled from your resume — verify before sharing.</p>
                 </div>
                 
                 <div class="profile-card-modern">
@@ -91,8 +93,8 @@
                                 <path d="M32 32c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0 4c-5.33 0-16 2.67-16 8v4h32v-4c0-5.33-10.67-8-16-8z" fill="white"/>
                                 <defs>
                                     <linearGradient id="avatarGradient" x1="0" y1="0" x2="64" y2="64">
-                                        <stop offset="0%" stop-color="#1e40af"/>
-                                        <stop offset="100%" stop-color="#0284c7"/>
+                                        <stop offset="0%" stop-color="#4f46e5"/>
+                                        <stop offset="100%" stop-color="#8b5cf6"/>
                                     </linearGradient>
                                 </defs>
                             </svg>
@@ -107,7 +109,7 @@
                                     </svg>
                                     <span id="candidateLocation">-</span>
                                 </span>
-                                <span class="meta-item">
+                                <span class="meta-item copy-target" id="candidateEmailWrap" title="Click to copy">
                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                                         <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
@@ -126,27 +128,27 @@
 
             <!-- Skills Section -->
             <section class="section" id="skillsSection" style="display: none;">
-                <div class="section-header">
-                    <h2 class="section-title">Skills & Expertise</h2>
-                    <p class="section-description">Technical and professional competencies</p>
+                <div class="section-header" data-eyebrow="Capabilities">
+                    <h2 class="section-title">Skills & expertise</h2>
+                    <p class="section-description">Technical and professional competencies extracted from your resume.</p>
                 </div>
                 <div class="skills-container" id="skillsGrid"></div>
             </section>
 
             <!-- Experience Section -->
             <section class="section" id="experienceSection" style="display: none;">
-                <div class="section-header">
-                    <h2 class="section-title">Professional Experience</h2>
-                    <p class="section-description">Career history and achievements</p>
+                <div class="section-header" data-eyebrow="Career Timeline">
+                    <h2 class="section-title">Professional experience</h2>
+                    <p class="section-description">Roles, durations, and standout achievements.</p>
                 </div>
                 <div class="timeline-modern" id="experienceTimeline"></div>
             </section>
 
             <!-- Education Section -->
             <section class="section" id="educationSection" style="display: none;">
-                <div class="section-header">
+                <div class="section-header" data-eyebrow="Background">
                     <h2 class="section-title">Education</h2>
-                    <p class="section-description">Academic background and qualifications</p>
+                    <p class="section-description">Academic background and qualifications.</p>
                 </div>
                 <div class="education-grid-modern" id="educationGrid"></div>
             </section>
@@ -187,9 +189,9 @@
 
             <!-- Job Recommendations Section -->
             <section class="section" id="jobRecommendationsSection" style="display: none;">
-                <div class="section-header">
-                    <h2 class="section-title">Find Your Perfect Job Match</h2>
-                    <p class="section-description">Get AI-powered job recommendations tailored to your profile</p>
+                <div class="section-header" data-eyebrow="Matched For You">
+                    <h2 class="section-title">Find your perfect job match</h2>
+                    <p class="section-description">AI-curated roles based on your skills, experience, and trajectory.</p>
                 </div>
                 
                 <!-- ATS Checker Card -->
@@ -394,6 +396,7 @@
         </div>
     </div>
     
+    <script src="/static/motion.js"></script>
     <script src="/static/analysis.js"></script>
 </body>
 </html>

@@ -61,19 +61,44 @@
                         </svg>
                     </div>
                     <div class="linkedin-content">
-                        <h3>Connect Your LinkedIn Profile</h3>
-                        <p>Merge your LinkedIn data with your resume for better job recommendations</p>
-                        <div class="linkedin-input-group">
-                            <input type="url" id="linkedinUrl" class="input-field" placeholder="https://www.linkedin.com/in/your-profile">
-                            <button class="btn btn-primary" onclick="addLinkedInProfile()">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                Add LinkedIn
-                            </button>
-                            <button class="btn btn-secondary" onclick="skipLinkedIn()">Skip</button>
+                        <h3>Enhance with LinkedIn</h3>
+                        <p>Merge LinkedIn data with your resume for richer recommendations.
+                           Pasting the profile text is faster and more reliable than the scrape option.</p>
+
+                        <div class="linkedin-tabs" role="tablist">
+                            <button type="button" class="linkedin-tab is-active" data-pane="pasteLinkedInPane"
+                                role="tab" aria-selected="true">Paste profile text</button>
+                            <button type="button" class="linkedin-tab" data-pane="urlLinkedInPane"
+                                role="tab" aria-selected="false">Use URL (scrape)</button>
                         </div>
-                        <p id="linkedinStatus" class="status-message"></p>
+
+                        <div class="linkedin-pane is-active" id="pasteLinkedInPane" role="tabpanel">
+                            <textarea id="linkedinText" class="input-field linkedin-paste-textarea"
+                                placeholder="Open your LinkedIn profile, select all visible text (Ctrl+A on the page), and paste it here…"></textarea>
+                            <p class="hint">
+                                We extract structured fields with the same model used for your resume.
+                                Paste at least the headline, experience, and skills sections.
+                            </p>
+                            <div class="linkedin-input-group" style="margin-top: 0.75rem;">
+                                <button class="btn btn-primary" onclick="pasteLinkedInProfile()">Merge LinkedIn text</button>
+                                <button class="btn btn-secondary" onclick="skipLinkedIn()">Skip</button>
+                            </div>
+                        </div>
+
+                        <div class="linkedin-pane" id="urlLinkedInPane" role="tabpanel">
+                            <input type="url" id="linkedinUrl" class="input-field"
+                                placeholder="https://www.linkedin.com/in/your-profile">
+                            <p class="hint">
+                                Scraping uses headless Chrome and may fail when LinkedIn changes its layout
+                                or rate-limits the IP. Prefer the paste option if you can.
+                            </p>
+                            <div class="linkedin-input-group" style="margin-top: 0.75rem;">
+                                <button class="btn btn-primary" onclick="addLinkedInProfile()">Scrape LinkedIn</button>
+                                <button class="btn btn-secondary" onclick="skipLinkedIn()">Skip</button>
+                            </div>
+                        </div>
+
+                        <p id="linkedinStatus" class="status-message" style="margin-top: 0.75rem;"></p>
                     </div>
                 </div>
             </section>

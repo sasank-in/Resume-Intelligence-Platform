@@ -290,6 +290,33 @@ Return ONLY JSON. If a field cannot be inferred, use "Not specified" or []."""
     return result
 
 
+def extract_linkedin_from_text(linkedin_text: str) -> Dict:
+    """Extract structured LinkedIn fields from raw pasted profile text."""
+    prompt = f"""You are extracting LinkedIn profile data from text the user pasted.
+Return ONLY valid JSON in this shape; use null/[] when a field is absent.
+
+{{
+  "name": "...",
+  "headline": "...",
+  "location": "...",
+  "summary": "...",
+  "skills": ["..."],
+  "experience": [
+    {{"title": "...", "company": "...", "duration": "...", "highlights": ["..."]}}
+  ],
+  "education": [
+    {{"degree": "...", "institution": "...", "year": "...", "details": "..."}}
+  ],
+  "certifications": ["..."],
+  "languages": ["..."]
+}}
+
+PROFILE TEXT (truncated to 8000 chars):
+{linkedin_text[:8000]}
+"""
+    return _llm_json(prompt, max_tokens=1500)
+
+
 def generate_market_insights(
     job_role: str,
     experience_level: Optional[str],

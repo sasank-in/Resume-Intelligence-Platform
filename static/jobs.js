@@ -12,7 +12,7 @@ async function analyzeJobDescription() {
     const analysisType = document.getElementById('analysisType').value;
     
     if (!jobDescription) {
-        alert('Please enter a job description to analyze');
+        if (window.UI) UI.toast('Please enter a job description to analyze', { type: 'info' });
         return;
     }
     
@@ -85,97 +85,81 @@ async function analyzeJobRequirements(jobDescription, targetRole, analysisType) 
 // Display job analysis results
 function displayJobAnalysis(analysis) {
     const resultsDiv = document.getElementById('atsResults');
-    
+    const esc = (window.UI && window.UI.escape) || (s => String(s == null ? '' : s));
+    const co = analysis.company_insights || {};
+    const mi = analysis.market_insights || {};
+    const required = Array.isArray(analysis.required_skills) ? analysis.required_skills : [];
+    const preferred = Array.isArray(analysis.preferred_skills) ? analysis.preferred_skills : [];
+    const responsibilities = Array.isArray(analysis.key_responsibilities) ? analysis.key_responsibilities : [];
+    const atsTips = Array.isArray(analysis.ats_tips) ? analysis.ats_tips : [];
+    const topLocations = Array.isArray(mi.top_locations) ? mi.top_locations : [];
+
     resultsDiv.innerHTML = `
         <div class="job-analysis-results">
-            <!-- Role Overview -->
             <div class="analysis-section">
                 <h4>📋 Role Overview</h4>
                 <div class="role-overview">
-                    <div class="overview-item">
-                        <strong>Position:</strong> ${analysis.role_title}
-                    </div>
-                    <div class="overview-item">
-                        <strong>Experience Level:</strong> ${analysis.experience_level}
-                    </div>
-                    <div class="overview-item">
-                        <strong>Salary Range:</strong> ${analysis.salary_range}
-                    </div>
+                    <div class="overview-item"><strong>Position:</strong> ${esc(analysis.role_title || '—')}</div>
+                    <div class="overview-item"><strong>Experience Level:</strong> ${esc(analysis.experience_level || '—')}</div>
+                    <div class="overview-item"><strong>Salary Range:</strong> ${esc(analysis.salary_range || '—')}</div>
                 </div>
             </div>
-            
-            <!-- Skills Breakdown -->
+
             <div class="analysis-section">
                 <h4>🎯 Skills Requirements</h4>
                 <div class="skills-breakdown">
                     <div class="skills-category">
                         <h5>Required Skills</h5>
                         <div class="skills-tags">
-                            ${analysis.required_skills.map(skill => 
-                                `<span class="skill-tag required">${skill}</span>`
-                            ).join('')}
+                            ${required.length
+                                ? required.map(s => `<span class="skill-tag required">${esc(s)}</span>`).join('')
+                                : '<span class="hint">No required skills extracted.</span>'}
                         </div>
                     </div>
                     <div class="skills-category">
                         <h5>Preferred Skills</h5>
                         <div class="skills-tags">
-                            ${analysis.preferred_skills.map(skill => 
-                                `<span class="skill-tag preferred">${skill}</span>`
-                            ).join('')}
+                            ${preferred.length
+                                ? preferred.map(s => `<span class="skill-tag preferred">${esc(s)}</span>`).join('')
+                                : '<span class="hint">No preferred skills extracted.</span>'}
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Key Responsibilities -->
+
             <div class="analysis-section">
                 <h4>💼 Key Responsibilities</h4>
                 <ul class="responsibilities-list">
-                    ${analysis.key_responsibilities.map(resp => 
-                        `<li>${resp}</li>`
-                    ).join('')}
+                    ${responsibilities.length
+                        ? responsibilities.map(r => `<li>${esc(r)}</li>`).join('')
+                        : '<li class="hint">No responsibilities extracted.</li>'}
                 </ul>
             </div>
-            
-            <!-- Company Insights -->
+
             <div class="analysis-section">
                 <h4>🏢 Company Insights</h4>
                 <div class="company-info">
-                    <div class="info-item">
-                        <strong>Company Size:</strong> ${analysis.company_insights.size}
-                    </div>
-                    <div class="info-item">
-                        <strong>Culture:</strong> ${analysis.company_insights.culture}
-                    </div>
-                    <div class="info-item">
-                        <strong>Benefits:</strong> ${analysis.company_insights.benefits}
-                    </div>
+                    <div class="info-item"><strong>Size:</strong> ${esc(co.size || '—')}</div>
+                    <div class="info-item"><strong>Culture:</strong> ${esc(co.culture || '—')}</div>
+                    <div class="info-item"><strong>Benefits:</strong> ${esc(co.benefits || '—')}</div>
                 </div>
             </div>
-            
-            <!-- ATS Optimization Tips -->
+
             <div class="analysis-section">
                 <h4>🚀 ATS Optimization Tips</h4>
                 <ul class="ats-tips-list">
-                    ${analysis.ats_tips.map(tip => 
-                        `<li>${tip}</li>`
-                    ).join('')}
+                    ${atsTips.length
+                        ? atsTips.map(t => `<li>${esc(t)}</li>`).join('')
+                        : '<li class="hint">No specific tips for this posting.</li>'}
                 </ul>
             </div>
-            
-            <!-- Market Insights -->
+
             <div class="analysis-section">
                 <h4>📊 Market Insights</h4>
                 <div class="market-info">
-                    <div class="info-item">
-                        <strong>Market Demand:</strong> ${analysis.market_insights.demand}
-                    </div>
-                    <div class="info-item">
-                        <strong>Growth Outlook:</strong> ${analysis.market_insights.growth_outlook}
-                    </div>
-                    <div class="info-item">
-                        <strong>Top Locations:</strong> ${analysis.market_insights.top_locations.join(', ')}
-                    </div>
+                    <div class="info-item"><strong>Demand:</strong> ${esc(mi.demand || '—')}</div>
+                    <div class="info-item"><strong>Growth Outlook:</strong> ${esc(mi.growth_outlook || '—')}</div>
+                    <div class="info-item"><strong>Top Locations:</strong> ${esc(topLocations.join(', ') || '—')}</div>
                 </div>
             </div>
         </div>
@@ -190,7 +174,7 @@ async function getMarketInsights() {
     const location = document.getElementById('location').value.trim();
     
     if (!jobRole) {
-        alert('Please enter a job role to get insights');
+        if (window.UI) UI.toast('Please enter a job role to get insights', { type: 'info' });
         return;
     }
     
@@ -260,92 +244,74 @@ async function getJobMarketData(jobRole, experienceLevel, industry, location) {
 // Display market insights
 function displayMarketInsights(insights) {
     const content = document.getElementById('jobRecommendationsContent');
-    
+    const esc = (window.UI && window.UI.escape) || (s => String(s == null ? '' : s));
+    const sal = insights.salary_data || {};
+    const out = insights.job_outlook || {};
+    const edu = insights.education_stats || {};
+    const top = Array.isArray(insights.top_skills) ? insights.top_skills : [];
+    const paths = Array.isArray(insights.career_path) ? insights.career_path : [];
+    const companies = Array.isArray(insights.top_companies) ? insights.top_companies : [];
+    const fmtSalary = n => (typeof n === 'number') ? '$' + n.toLocaleString() : '—';
+
     content.innerHTML = `
         <div class="market-insights-results">
             <div class="insights-header">
-                <h3>Market Insights for ${insights.role}</h3>
-                ${insights.experience_level ? `<p>Experience Level: ${insights.experience_level}</p>` : ''}
+                <h3>Market Insights for ${esc(insights.role || 'role')}</h3>
+                ${insights.experience_level ? `<p>Experience Level: ${esc(insights.experience_level)}</p>` : ''}
+                ${insights.notes ? `<p class="hint">${esc(insights.notes)}</p>` : ''}
             </div>
-            
-            <!-- Salary Information -->
+
             <div class="insight-card">
                 <h4>💰 Salary Information</h4>
                 <div class="salary-range">
-                    <div class="salary-item">
-                        <span class="salary-label">Entry Range:</span>
-                        <span class="salary-value">$${insights.salary_data.min.toLocaleString()}</span>
-                    </div>
-                    <div class="salary-item">
-                        <span class="salary-label">Median:</span>
-                        <span class="salary-value">$${insights.salary_data.median.toLocaleString()}</span>
-                    </div>
-                    <div class="salary-item">
-                        <span class="salary-label">Top Range:</span>
-                        <span class="salary-value">$${insights.salary_data.max.toLocaleString()}</span>
-                    </div>
+                    <div class="salary-item"><span class="salary-label">Entry Range:</span> <span class="salary-value">${fmtSalary(sal.min)}</span></div>
+                    <div class="salary-item"><span class="salary-label">Median:</span> <span class="salary-value">${fmtSalary(sal.median)}</span></div>
+                    <div class="salary-item"><span class="salary-label">Top Range:</span> <span class="salary-value">${fmtSalary(sal.max)}</span></div>
                 </div>
             </div>
-            
-            <!-- Job Market Outlook -->
+
             <div class="insight-card">
                 <h4>📈 Job Market Outlook</h4>
                 <div class="market-stats">
-                    <div class="stat-item">
-                        <strong>Demand:</strong> ${insights.job_outlook.demand}
-                    </div>
-                    <div class="stat-item">
-                        <strong>Growth Rate:</strong> ${insights.job_outlook.growth_rate} annually
-                    </div>
-                    <div class="stat-item">
-                        <strong>Available Positions:</strong> ${insights.job_outlook.openings}
-                    </div>
+                    <div class="stat-item"><strong>Demand:</strong> ${esc(out.demand || '—')}</div>
+                    <div class="stat-item"><strong>Growth Rate:</strong> ${esc(out.growth_rate || '—')}</div>
+                    <div class="stat-item"><strong>Openings:</strong> ${esc(out.openings || '—')}</div>
                 </div>
             </div>
-            
-            <!-- Top Skills -->
+
             <div class="insight-card">
                 <h4>🎯 Most In-Demand Skills</h4>
                 <div class="skills-tags">
-                    ${insights.top_skills.map(skill => 
-                        `<span class="skill-tag popular">${skill}</span>`
-                    ).join('')}
+                    ${top.length
+                        ? top.map(s => `<span class="skill-tag popular">${esc(s)}</span>`).join('')
+                        : '<span class="hint">No data available.</span>'}
                 </div>
             </div>
-            
-            <!-- Career Progression -->
+
             <div class="insight-card">
                 <h4>🚀 Career Progression Paths</h4>
                 <div class="career-paths">
-                    ${insights.career_path.map(path => 
-                        `<div class="career-path">${path}</div>`
-                    ).join('')}
+                    ${paths.length
+                        ? paths.map(p => `<div class="career-path">${esc(p)}</div>`).join('')
+                        : '<p class="hint">No data available.</p>'}
                 </div>
             </div>
-            
-            <!-- Top Employers -->
+
             <div class="insight-card">
                 <h4>🏢 Top Hiring Companies</h4>
                 <div class="companies-list">
-                    ${insights.top_companies.map(company => 
-                        `<span class="company-tag">${company}</span>`
-                    ).join('')}
+                    ${companies.length
+                        ? companies.map(c => `<span class="company-tag">${esc(c)}</span>`).join('')
+                        : '<span class="hint">No data available.</span>'}
                 </div>
             </div>
-            
-            <!-- Education Requirements -->
+
             <div class="insight-card">
                 <h4>🎓 Education Requirements</h4>
                 <div class="education-stats">
-                    <div class="edu-stat">
-                        <strong>${insights.education_stats.bachelor_required}</strong> require Bachelor's degree
-                    </div>
-                    <div class="edu-stat">
-                        <strong>${insights.education_stats.master_preferred}</strong> prefer Master's degree
-                    </div>
-                    <div class="edu-stat">
-                        <strong>${insights.education_stats.bootcamp_accepted}</strong> accept bootcamp graduates
-                    </div>
+                    <div class="edu-stat"><strong>${esc(edu.bachelor_required || '—')}</strong> require Bachelor's</div>
+                    <div class="edu-stat"><strong>${esc(edu.master_preferred || '—')}</strong> prefer Master's</div>
+                    <div class="edu-stat"><strong>${esc(edu.bootcamp_accepted || '—')}</strong> accept bootcamp grads</div>
                 </div>
             </div>
         </div>

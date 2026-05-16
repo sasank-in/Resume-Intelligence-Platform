@@ -69,37 +69,41 @@
                 </div>
 
                 <div class="linkedin-card">
-                    <div class="linkedin-content" style="width: 100%;">
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Job Title</label>
-                            <input type="text" id="jobTitle" class="input-field" placeholder="e.g., Senior Software Engineer" value="Senior Software Engineer">
+                    <div class="linkedin-content screening-form">
+                        <div class="form-row-full">
+                            <label for="jobTitle">Job title</label>
+                            <input type="text" id="jobTitle" class="input-field"
+                                placeholder="e.g., Senior Software Engineer">
                         </div>
 
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Required Skills (comma-separated)</label>
-                            <input type="text" id="requiredSkills" class="input-field" placeholder="e.g., python, javascript, sql, git" value="python, javascript, sql, git">
+                        <div class="form-row-full">
+                            <label for="requiredSkills">Required skills (comma-separated)</label>
+                            <input type="text" id="requiredSkills" class="input-field"
+                                placeholder="e.g., python, javascript, sql, git">
+                            <p class="hint">Candidates missing these will be downranked.</p>
                         </div>
 
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Preferred Skills (comma-separated)</label>
-                            <input type="text" id="preferredSkills" class="input-field" placeholder="e.g., react, docker, aws, agile" value="react, docker, aws, agile">
+                        <div class="form-row-full">
+                            <label for="preferredSkills">Preferred skills (comma-separated)</label>
+                            <input type="text" id="preferredSkills" class="input-field"
+                                placeholder="e.g., react, docker, aws, agile">
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="screening-grid-3">
                             <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Min Experience (years)</label>
-                                <input type="number" id="minExperience" class="input-field" value="2" min="0">
+                                <label for="minExperience">Min experience (years)</label>
+                                <input type="number" id="minExperience" class="input-field" min="0" placeholder="0">
                             </div>
                             <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Max Experience (years)</label>
-                                <input type="number" id="maxExperience" class="input-field" value="5" min="0">
+                                <label for="maxExperience">Max experience (years)</label>
+                                <input type="number" id="maxExperience" class="input-field" min="0" placeholder="100">
                             </div>
                             <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Required Degree</label>
+                                <label for="requiredDegree">Required degree</label>
                                 <select id="requiredDegree" class="input-field">
                                     <option value="">None</option>
                                     <option value="associate">Associate</option>
-                                    <option value="bachelor" selected>Bachelor</option>
+                                    <option value="bachelor">Bachelor</option>
                                     <option value="master">Master</option>
                                     <option value="phd">PhD</option>
                                 </select>
@@ -131,15 +135,15 @@
                     <div id="fileList" class="file-name" style="display: none;"></div>
                 </div>
 
-                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <div class="screening-actions">
                     <button class="btn btn-primary btn-large" onclick="screenResumes()" id="screenBtn" disabled>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        Screen Candidates
+                        Screen candidates
                     </button>
-                    <button class="btn btn-secondary" onclick="loadTemplate()">
-                        Load Template
+                    <button class="btn btn-secondary" onclick="loadTemplate()" title="Pre-fill all fields with a sample software-engineer spec">
+                        Load example spec
                     </button>
                 </div>
             </section>

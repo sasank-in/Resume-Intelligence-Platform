@@ -13,6 +13,7 @@ from .logging_config import get_logger
 from .models import (
     ChatMessage,
     JobRecommendationRequest,
+    LinkedInPasteRequest,
     LinkedInProfileRequest,
     ResumeAnalysisRequest,
 )
@@ -196,6 +197,36 @@ class LinkedInHandlers:
             elif self._is_valid(value):
                 cleaned[key] = value
         return cleaned
+
+    async def paste_linkedin_profile(self, request: LinkedInPasteRequest) -> Dict:
+        """Build a unified profile from pasted LinkedIn text (no Selenium)."""
+        data = _require_session(self.session_manager, request.session_id)
+        text = (request.linkedin_text or "").strip()
+        if len(text) < 40:
+            raise bad_request("Paste the full visible text from your LinkedIn profile.")
+        try:
+            linkedin_data = services.extract_linkedin_from_text(text)
+            linkedin_clean = {
+                k: v for k, v in linkedin_data.items() if v is not None and v != []
+            }
+            unified = ProfileBuilder.merge_profiles(
+                data["resume_data"],
+                linkedin_clean if linkedin_clean else None,
+            )
+            unified_clean = self._clean_profile_data(unified)
+            self.session_manager.update_session(request.session_id, {
+                "linkedin_data": linkedin_clean,
+                "unified_profile": unified_clean,
+            })
+            return {
+                "message": "LinkedIn profile merged from pasted text",
+                "linkedin_data": linkedin_clean,
+                "unified_profile": unified_clean,
+            }
+        except Exception as e:
+            if hasattr(e, "status_code"):
+                raise
+            raise server_error("Paste-LinkedIn failed", e, session=request.session_id)
 
     async def skip_linkedin(self, request: ResumeAnalysisRequest) -> Dict:
         data = _require_session(self.session_manager, request.session_id)

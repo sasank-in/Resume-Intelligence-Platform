@@ -2,6 +2,8 @@
 Resume Parser for Automated Job Application Screening
 Extracts structured data from resumes and scores candidates
 """
+from src._logprint import make_log_print
+print = make_log_print(__name__)
 import re
 import json
 from typing import Dict, List, Optional, Tuple

@@ -11,7 +11,7 @@ from .models import JobRequirements
 
 
 # Create router
-screening_router = APIRouter(prefix="/screening", tags=["screening"])
+screening_router = APIRouter(prefix="/screening", tags=["screening"])  # tag applies to all routes below
 
 # Initialize handlers
 screening_handlers = ScreeningHandlers()

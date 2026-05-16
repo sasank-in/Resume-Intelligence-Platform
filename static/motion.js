@@ -23,7 +23,7 @@
         targets.forEach(el => io.observe(el));
     }
 
-    /* ---------- Navbar shadow on scroll ---------- */
+    /* ---------- Navbar shadow on scroll + mobile hamburger ---------- */
     function initNavbar() {
         const nav = document.querySelector(".navbar");
         if (!nav) return;
@@ -42,6 +42,46 @@
             ) {
                 a.classList.add("is-active");
             }
+        });
+
+        // Inject hamburger toggle (CSS shows it only below 720px)
+        const container = nav.querySelector(".nav-container");
+        const links = nav.querySelector(".nav-links");
+        if (!container || !links || container.querySelector(".nav-toggle")) return;
+
+        const btn = document.createElement("button");
+        btn.className = "nav-toggle";
+        btn.setAttribute("aria-label", "Open navigation menu");
+        btn.setAttribute("aria-expanded", "false");
+        btn.setAttribute("aria-controls", "primaryNav");
+        btn.innerHTML = '<span></span><span></span><span></span>';
+        container.appendChild(btn);
+        links.id = "primaryNav";
+
+        const close = () => {
+            nav.classList.remove("is-open");
+            btn.setAttribute("aria-expanded", "false");
+            btn.setAttribute("aria-label", "Open navigation menu");
+        };
+        const open = () => {
+            nav.classList.add("is-open");
+            btn.setAttribute("aria-expanded", "true");
+            btn.setAttribute("aria-label", "Close navigation menu");
+        };
+
+        btn.addEventListener("click", () => {
+            if (nav.classList.contains("is-open")) close();
+            else open();
+        });
+        // Close on link click or escape or resize-to-desktop
+        links.addEventListener("click", (e) => {
+            if (e.target.closest(".nav-link")) close();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && nav.classList.contains("is-open")) close();
+        });
+        window.addEventListener("resize", () => {
+            if (window.innerWidth > 720 && nav.classList.contains("is-open")) close();
         });
     }
 
@@ -192,9 +232,26 @@
         });
     }
 
+    /* ---------- HTML escape — defense against XSS via innerHTML ---------- */
+    const _escMap = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+    function escape(str) {
+        if (str == null) return "";
+        return String(str).replace(/[&<>"']/g, ch => _escMap[ch]);
+    }
+    // Template tag: html`<p>${userInput}</p>` — auto-escapes interpolations.
+    function html(strings, ...values) {
+        let out = strings[0];
+        for (let i = 0; i < values.length; i++) {
+            out += escape(values[i]) + strings[i + 1];
+        }
+        return out;
+    }
+
     /* ---------- Public API ---------- */
     window.UI = Object.freeze({
         toast,
+        escape,
+        html,
         setLoading(btn, loading) {
             if (!btn) return;
             if (loading) btn.setAttribute("data-loading", "true");

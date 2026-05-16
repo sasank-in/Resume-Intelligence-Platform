@@ -1,3 +1,5 @@
+from src._logprint import make_log_print
+print = make_log_print(__name__)
 import os
 from dotenv import load_dotenv
 from groq import Groq

@@ -2,6 +2,8 @@
 ATS (Applicant Tracking System) Checker
 Analyzes resume compatibility with job descriptions and ATS systems
 """
+from src._logprint import make_log_print
+print = make_log_print(__name__)
 import os
 import json
 import re

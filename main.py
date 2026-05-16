@@ -16,12 +16,15 @@ from app.config import (
     APP_TITLE,
     APP_VERSION,
     CORS_ORIGINS,
+    ENV,
     IS_PROD,
     RATE_LIMIT_DEFAULT,
     RATE_LIMIT_LLM,
     RATE_LIMIT_UPLOAD,
     STATIC_DIR,
 )
+from app.observability import init_sentry
+from app import health
 from app.handlers import (
     ChatHandlers,
     JobHandlers,
@@ -33,6 +36,7 @@ from app.models import (
     ATSSuggestionsRequest,
     ChatMessage,
     JobRecommendationRequest,
+    LinkedInPasteRequest,
     LinkedInProfileRequest,
     ResumeAnalysisRequest,
 )
@@ -43,6 +47,7 @@ from src.utils.ats_checker import ATSChecker
 
 setup_logging()
 log = get_logger(__name__)
+init_sentry(release=APP_VERSION, environment=ENV)
 
 limiter = Limiter(key_func=get_remote_address, default_limits=[RATE_LIMIT_DEFAULT])
 
@@ -72,11 +77,23 @@ async def lifespan(app: FastAPI):
         log.info("app_stopped")
 
 
+OPENAPI_TAGS = [
+    {"name": "pages", "description": "HTML pages served to the browser."},
+    {"name": "resume", "description": "Resume upload, parsing, and AI analysis."},
+    {"name": "chat", "description": "Conversational AI about the uploaded resume."},
+    {"name": "linkedin", "description": "Optional LinkedIn profile merge."},
+    {"name": "jobs", "description": "Job recommendations and ATS compatibility."},
+    {"name": "job-tools", "description": "Standalone JD analyzer and market insights."},
+    {"name": "screening", "description": "Recruiter-side batch resume screening."},
+    {"name": "system", "description": "Health, liveness, version."},
+]
+
 app = FastAPI(
     title=APP_TITLE,
     description=APP_DESCRIPTION,
     version=APP_VERSION,
     lifespan=lifespan,
+    openapi_tags=OPENAPI_TAGS,
     # Hide docs in prod by default; expose via env if needed.
     docs_url=None if IS_PROD else "/docs",
     redoc_url=None if IS_PROD else "/redoc",
@@ -104,27 +121,33 @@ def _serve_html(name: str) -> FileResponse:
     return FileResponse(path, media_type="text/html")
 
 
-@app.get("/")
+@app.get("/", tags=["pages"], summary="Home page (upload UI)")
 async def home():
     return _serve_html("index.html")
 
 
-@app.get("/analysis.html")
+@app.get("/analysis.html", tags=["pages"], summary="Analysis results page")
 async def analysis_page():
     return _serve_html("analysis.html")
 
 
-@app.get("/jobs.html")
+@app.get("/jobs.html", tags=["pages"], summary="Job tools page")
 async def jobs_page():
     return _serve_html("jobs.html")
 
 
-@app.get("/screening.html")
+@app.get("/screening.html", tags=["pages"], summary="Recruiter screening page")
 async def screening_page():
     return _serve_html("screening.html")
 
 
-@app.post("/upload")
+@app.post(
+    "/upload",
+    tags=["resume"],
+    summary="Upload and parse a resume PDF",
+    description="Accepts a PDF (≤ MAX_FILE_SIZE), extracts text via pypdf, "
+                "asks the LLM for structured fields, and stores the result in the session.",
+)
 @limiter.limit(RATE_LIMIT_UPLOAD)
 async def upload_resume(
     request: Request,
@@ -134,36 +157,74 @@ async def upload_resume(
     return await request.app.state.resume_handlers.upload_resume(file, session_id)
 
 
-@app.post("/get-analysis")
+@app.post(
+    "/get-analysis",
+    tags=["resume"],
+    summary="Run AI career analysis for the uploaded resume",
+)
 @limiter.limit(RATE_LIMIT_LLM)
 async def get_analysis(request: Request, payload: ResumeAnalysisRequest):
     return await request.app.state.resume_handlers.get_analysis(payload)
 
 
-@app.post("/chat")
+@app.post(
+    "/chat",
+    tags=["chat"],
+    summary="Ask the AI a question about your resume",
+)
 @limiter.limit(RATE_LIMIT_LLM)
 async def chat(request: Request, payload: ChatMessage):
     return await request.app.state.chat_handlers.chat(payload)
 
 
-@app.post("/add-linkedin")
+@app.post(
+    "/add-linkedin",
+    tags=["linkedin"],
+    summary="Merge LinkedIn profile data (Selenium scrape)",
+    description="Heavily rate-limited because each call spins up a headless Chrome.",
+)
 @limiter.limit("5/minute")
 async def add_linkedin_profile(request: Request, payload: LinkedInProfileRequest):
     return await request.app.state.linkedin_handlers.add_linkedin_profile(payload)
 
 
-@app.post("/skip-linkedin")
+@app.post(
+    "/paste-linkedin",
+    tags=["linkedin"],
+    summary="Merge LinkedIn profile from pasted text (no scraping)",
+    description="Preferred alternative to /add-linkedin. User pastes the visible "
+                "text of their LinkedIn profile; we feed it to the LLM to extract "
+                "structured data, then merge with resume.",
+)
+@limiter.limit(RATE_LIMIT_LLM)
+async def paste_linkedin_profile(request: Request, payload: LinkedInPasteRequest):
+    return await request.app.state.linkedin_handlers.paste_linkedin_profile(payload)
+
+
+@app.post(
+    "/skip-linkedin",
+    tags=["linkedin"],
+    summary="Build unified profile from resume only (skip LinkedIn)",
+)
 async def skip_linkedin(request: Request, payload: ResumeAnalysisRequest):
     return await request.app.state.linkedin_handlers.skip_linkedin(payload)
 
 
-@app.post("/recommend-jobs")
+@app.post(
+    "/recommend-jobs",
+    tags=["jobs"],
+    summary="AI-recommended job matches based on the unified profile",
+)
 @limiter.limit(RATE_LIMIT_LLM)
 async def recommend_jobs(request: Request, payload: JobRecommendationRequest):
     return await request.app.state.job_handlers.recommend_jobs(payload)
 
 
-@app.post("/check-ats")
+@app.post(
+    "/check-ats",
+    tags=["jobs"],
+    summary="ATS compatibility score against a job description",
+)
 @limiter.limit(RATE_LIMIT_LLM)
 async def check_ats_compatibility(
     request: Request,
@@ -177,7 +238,11 @@ async def check_ats_compatibility(
     )
 
 
-@app.post("/ats-suggestions")
+@app.post(
+    "/ats-suggestions",
+    tags=["jobs"],
+    summary="Targeted ATS improvement suggestions (requires prior /check-ats)",
+)
 @limiter.limit(RATE_LIMIT_LLM)
 async def get_ats_suggestions(request: Request, payload: ATSSuggestionsRequest):
     return await request.app.state.job_handlers.get_ats_suggestions(
@@ -185,7 +250,11 @@ async def get_ats_suggestions(request: Request, payload: ATSSuggestionsRequest):
     )
 
 
-@app.post("/analyze-job")
+@app.post(
+    "/analyze-job",
+    tags=["job-tools"],
+    summary="Analyze a job description on its own (no resume needed)",
+)
 @limiter.limit(RATE_LIMIT_LLM)
 async def analyze_job_description(
     request: Request,
@@ -198,7 +267,11 @@ async def analyze_job_description(
     )
 
 
-@app.post("/market-insights")
+@app.post(
+    "/market-insights",
+    tags=["job-tools"],
+    summary="Salary, demand, top skills for a given role",
+)
 @limiter.limit(RATE_LIMIT_LLM)
 async def get_market_insights(
     request: Request,
@@ -212,9 +285,15 @@ async def get_market_insights(
     )
 
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "service": APP_TITLE, "version": APP_VERSION}
+@app.get(
+    "/health",
+    tags=["system"],
+    summary="Liveness + dependency probes (Redis, Groq)",
+    description="Returns 200 if the app is up. The `checks` field reports the "
+                "status of each external dependency. Use this as a readiness probe.",
+)
+async def health_check(request: Request):
+    return await health.run_checks(request.app.state)
 
 
 if os.path.isdir(STATIC_DIR):

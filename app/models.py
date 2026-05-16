@@ -14,8 +14,14 @@ class ChatMessage(BaseModel):
     session_id: str
 
 class LinkedInProfileRequest(BaseModel):
-    """Request model for LinkedIn profile addition"""
+    """Request model for LinkedIn profile addition via Selenium scrape."""
     linkedin_url: str
+    session_id: str
+
+
+class LinkedInPasteRequest(BaseModel):
+    """Request model for LinkedIn profile via pasted text (preferred, no scraping)."""
+    linkedin_text: str
     session_id: str
 
 class JobRecommendationRequest(BaseModel):

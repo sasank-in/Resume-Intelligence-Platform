@@ -2,11 +2,11 @@
 import asyncio
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -23,7 +23,7 @@ from app.config import (
     RATE_LIMIT_UPLOAD,
     STATIC_DIR,
 )
-from app.observability import init_sentry
+from app.observability import init_metrics, init_sentry
 from app import health
 from app.handlers import (
     ChatHandlers,
@@ -42,6 +42,11 @@ from app.models import (
 )
 from app.screening_routes import screening_router
 from app.session_manager import build_session_manager, session_cleanup_loop
+from app.static_manifest import (
+    StaticManifest,
+    make_static_handler,
+    serve_html_with_rewrite,
+)
 from src.recommenders import JobRecommender
 from src.utils.ats_checker import ATSChecker
 
@@ -57,6 +62,15 @@ async def lifespan(app: FastAPI):
     session_manager = build_session_manager()
     job_recommender = JobRecommender()
     ats_checker = ATSChecker()
+
+    # In production: minify CSS/JS + content-hash filenames + long cache headers.
+    # In dev: skip — DevTools shows readable CSS, edits visible without busting.
+    if IS_PROD:
+        manifest = StaticManifest(Path(STATIC_DIR))
+        manifest.build()
+        app.state.static_manifest = manifest
+    else:
+        app.state.static_manifest = None
 
     app.state.session_manager = session_manager
     app.state.resume_handlers = ResumeHandlers(session_manager)
@@ -101,6 +115,7 @@ app = FastAPI(
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+init_metrics(app)
 
 if CORS_ORIGINS:
     app.add_middleware(
@@ -114,31 +129,32 @@ if CORS_ORIGINS:
 app.include_router(screening_router)
 
 
-def _serve_html(name: str) -> FileResponse:
-    path = os.path.join(STATIC_DIR, name)
-    if not os.path.isfile(path):
+def _serve_html(request: Request, name: str):
+    path = Path(STATIC_DIR) / name
+    if not path.is_file():
         return JSONResponse({"detail": f"{name} not found"}, status_code=404)
-    return FileResponse(path, media_type="text/html")
+    manifest = getattr(request.app.state, "static_manifest", None)
+    return serve_html_with_rewrite(path, manifest)
 
 
 @app.get("/", tags=["pages"], summary="Home page (upload UI)")
-async def home():
-    return _serve_html("index.html")
+async def home(request: Request):
+    return _serve_html(request, "index.html")
 
 
 @app.get("/analysis.html", tags=["pages"], summary="Analysis results page")
-async def analysis_page():
-    return _serve_html("analysis.html")
+async def analysis_page(request: Request):
+    return _serve_html(request, "analysis.html")
 
 
 @app.get("/jobs.html", tags=["pages"], summary="Job tools page")
-async def jobs_page():
-    return _serve_html("jobs.html")
+async def jobs_page(request: Request):
+    return _serve_html(request, "jobs.html")
 
 
 @app.get("/screening.html", tags=["pages"], summary="Recruiter screening page")
-async def screening_page():
-    return _serve_html("screening.html")
+async def screening_page(request: Request):
+    return _serve_html(request, "screening.html")
 
 
 @app.post(
@@ -296,8 +312,41 @@ async def health_check(request: Request):
     return await health.run_checks(request.app.state)
 
 
+# Static serving.
+# A single dynamic /static/{filename} route handles both cases:
+#  - If the filename matches an entry in the in-memory manifest (production,
+#    hashed names like theme.abc1234567.css), serve from memory with long-cache.
+#  - Otherwise fall back to disk (original names; only path used in dev).
+LONG_CACHE = "public, max-age=31536000, immutable"
+
+
+async def _static(request: Request, filename: str):
+    manifest = getattr(request.app.state, "static_manifest", None)
+    if manifest is not None:
+        asset = manifest.assets.get(filename)
+        if asset is not None:
+            from fastapi.responses import Response
+            return Response(
+                content=asset.content,
+                media_type=asset.content_type,
+                headers={"Cache-Control": LONG_CACHE},
+            )
+
+    # Disk fallback (dev mode, or requests for the unhashed original name).
+    from fastapi.responses import FileResponse
+    path = Path(STATIC_DIR) / filename
+    if path.is_file():
+        return FileResponse(path)
+    return JSONResponse({"detail": "not found"}, status_code=404)
+
+
 if os.path.isdir(STATIC_DIR):
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    app.add_api_route(
+        "/static/{filename:path}",
+        _static,
+        methods=["GET"],
+        include_in_schema=False,
+    )
 
 
 if __name__ == "__main__":

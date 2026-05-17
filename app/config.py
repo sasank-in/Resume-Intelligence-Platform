@@ -57,3 +57,8 @@ UPLOAD_DIR = "uploads"
 # Environment: "development" | "production"
 ENV = os.getenv("ENV", "development").lower()
 IS_PROD = ENV == "production"
+
+# Prometheus /metrics. Off by default. Set METRICS_ENABLED=true (and optionally
+# METRICS_BASIC_AUTH=user:pass) to expose request/latency/error metrics.
+METRICS_ENABLED = os.getenv("METRICS_ENABLED", "false").lower() == "true"
+METRICS_BASIC_AUTH = os.getenv("METRICS_BASIC_AUTH", "")  # "user:pass" or empty

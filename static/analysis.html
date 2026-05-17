@@ -8,9 +8,6 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/motion.css">
     <link rel="stylesheet" href="/static/theme.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -44,9 +41,28 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <div class="content-container">
-            
+    <main class="main-content has-toc">
+        <div class="content-container content-with-rail">
+
+            <!-- Sticky Table of Contents (desktop only) -->
+            <aside class="toc-rail" aria-label="Page sections">
+                <div class="toc-rail-inner">
+                    <p class="toc-label">On this page</p>
+                    <ul class="toc-list">
+                        <li><a href="#profileSection" class="toc-link" data-target="profileSection">Profile</a></li>
+                        <li><a href="#linkedinSection" class="toc-link" data-target="linkedinSection">LinkedIn</a></li>
+                        <li><a href="#skillsSection" class="toc-link" data-target="skillsSection">Skills</a></li>
+                        <li><a href="#experienceSection" class="toc-link" data-target="experienceSection">Experience</a></li>
+                        <li><a href="#educationSection" class="toc-link" data-target="educationSection">Education</a></li>
+                        <li><a href="#analysisSection" class="toc-link" data-target="analysisSection">Analysis</a></li>
+                        <li><a href="#suggestedJobSection" class="toc-link" data-target="suggestedJobSection">Summary</a></li>
+                        <li><a href="#jobRecommendationsSection" class="toc-link" data-target="jobRecommendationsSection">Jobs &amp; ATS</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <div class="content-main">
+
             <!-- LinkedIn Section -->
             <section class="section" id="linkedinSection" style="display: none;">
                 <div class="section-header" data-eyebrow="Optional Enrichment">
@@ -286,6 +302,7 @@
                 </div>
             </section>
 
+            </div> <!-- /.content-main -->
         </div>
     </main>
 

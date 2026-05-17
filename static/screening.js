@@ -133,6 +133,14 @@ function displayResults(data) {
     } else {
         topCandidates.innerHTML = `
             <div class="empty-state">
+                <div class="empty-state-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <line x1="22" y1="8" x2="17" y2="13"/>
+                        <line x1="17" y1="8" x2="22" y2="13"/>
+                    </svg>
+                </div>
                 <h3>No candidates matched the criteria</h3>
                 <p>Try loosening your required skills, experience range, or required degree.</p>
             </div>`;

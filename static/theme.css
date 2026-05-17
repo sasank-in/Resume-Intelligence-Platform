@@ -4,6 +4,20 @@
    No glass, no mesh, no conic halos, no oversized motion.
    ===================================================================== */
 
+/* Self-host hook: drop static/fonts/Inter-Variable.woff2 in to switch from
+   the system font stack to a controlled web-font with zero network round-trip.
+   The @font-face is conditional via `local()` first; if the user has Inter
+   installed, no woff2 download happens. */
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: local("Inter"),
+         local("Inter Variable"),
+         url("/static/fonts/Inter-Variable.woff2") format("woff2-variations");
+}
+
 :root {
     /* --- Brand: navy + indigo, single accent --- */
     --primary: #1e40af;          /* navy-800 */
@@ -114,9 +128,30 @@ h1, h2, h3, .hero-title, .section-title, .profile-name, .upload-title,
 .hero {
     background: var(--primary-dark) !important;
     color: #fff !important;
-    padding: 5.5rem 0 6rem !important;
+    padding: 5rem 0 5.5rem !important;
     position: relative;
     overflow: hidden;
+}
+/* Compact variant: tool pages (jobs.html). Half the vertical heft. */
+.hero--compact {
+    padding: 3rem 0 3.25rem !important;
+}
+.hero--compact .hero-title {
+    font-size: clamp(1.75rem, 3vw, 2.125rem) !important;
+}
+.hero--compact .hero-subtitle {
+    font-size: 0.9375rem !important;
+    margin-bottom: 0 !important;
+}
+.hero--compact .hero-features { display: none !important; }
+.hero-eyebrow {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 600;
+    margin: 0 0 0.65rem !important;
+    font-family: var(--font-display);
 }
 .hero::before {
     content: "";
@@ -635,6 +670,71 @@ input[type="number"], select, textarea {
     resize: vertical;
 }
 
+/* ============ Sticky table of contents (analysis page) ============ */
+.content-with-rail {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+}
+@media (max-width: 980px) {
+    .content-with-rail {
+        display: block;
+    }
+    .toc-rail { display: none !important; }
+}
+.toc-rail {
+    position: sticky;
+    top: 80px;
+    align-self: start;
+    padding-top: 0.25rem;
+}
+.toc-rail-inner {
+    border-left: 1px solid var(--border);
+    padding-left: 1rem;
+}
+.toc-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-500);
+    font-weight: 600;
+    margin-bottom: 0.65rem;
+    font-family: var(--font-display);
+}
+.toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+.toc-link {
+    display: block;
+    padding: 0.35rem 0;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    margin-left: -1.1rem;  /* align over the rail's border-left */
+    padding-left: 1rem;
+    transition: color 120ms ease, border-color 120ms ease;
+}
+.toc-link:hover {
+    color: var(--gray-900);
+}
+.toc-link.is-active {
+    color: var(--primary);
+    border-left-color: var(--primary);
+    font-weight: 600;
+}
+/* Hidden sections (the JS toggles display) shouldn't be tracked */
+.toc-link.is-hidden {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
 /* ============ Footer: slim ============ */
 .footer {
     background: var(--surface) !important;
@@ -692,17 +792,32 @@ input[type="number"], select, textarea {
 /* ============ Empty state ============ */
 .empty-state {
     text-align: center;
-    padding: 2rem 1.5rem !important;
+    padding: 2.5rem 1.75rem !important;
     background: var(--surface) !important;
     backdrop-filter: none !important;
     border: 1px dashed var(--border-strong) !important;
     border-radius: var(--radius-xl) !important;
 }
+.empty-state-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary-tint);
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+.empty-state-icon svg {
+    width: 22px;
+    height: 22px;
+}
 .empty-state h3 {
     font-family: var(--font-display);
     font-size: 1rem !important;
     font-weight: 700 !important;
-    margin-bottom: 0.35rem !important;
+    margin-bottom: 0.4rem !important;
     color: var(--gray-900);
 }
 .empty-state p {
@@ -710,14 +825,17 @@ input[type="number"], select, textarea {
     font-size: 0.875rem !important;
     margin: 0 auto;
     max-width: 32rem;
+    line-height: 1.55;
 }
 .empty-state .empty-state-actions {
-    margin-top: 0.85rem;
+    margin-top: 1rem;
     display: inline-flex;
     gap: 0.5rem;
     flex-wrap: wrap;
     justify-content: center;
 }
+/* Variant: full-width inside a grid */
+.empty-state.full-width { grid-column: 1 / -1; }
 
 /* ============ ATS competitive spacer ============ */
 .competitive-card { margin-bottom: 1.5rem; }

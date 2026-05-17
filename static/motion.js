@@ -263,6 +263,54 @@
         },
     });
 
+    /* ---------- Sticky TOC: highlight active section + hide rows for hidden sections ---------- */
+    function initToc() {
+        const links = Array.from(document.querySelectorAll(".toc-link"));
+        if (!links.length) return;
+
+        const linkByTarget = new Map(
+            links.map(a => [a.getAttribute("data-target") || (a.getAttribute("href") || "").slice(1), a])
+        );
+
+        function refreshHiddenLinks() {
+            for (const [id, link] of linkByTarget.entries()) {
+                const section = document.getElementById(id);
+                const hidden = !section || section.offsetParent === null;
+                link.classList.toggle("is-hidden", hidden);
+            }
+        }
+        refreshHiddenLinks();
+        // The page's other JS toggles section visibility over time (linkedin, analysis,
+        // job recommendations…). Poll briefly so the TOC stays accurate without coupling.
+        let polls = 0;
+        const poll = setInterval(() => {
+            refreshHiddenLinks();
+            if (++polls > 20) clearInterval(poll);  // ~10s total
+        }, 500);
+
+        if (!("IntersectionObserver" in window)) return;
+
+        const io = new IntersectionObserver((entries) => {
+            // Pick the entry that's most prominently in view
+            const visible = entries
+                .filter(e => e.isIntersecting)
+                .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+            if (!visible.length) return;
+            const id = visible[0].target.id;
+            for (const link of links) link.classList.remove("is-active");
+            const active = linkByTarget.get(id);
+            if (active) active.classList.add("is-active");
+        }, {
+            rootMargin: "-30% 0px -55% 0px",
+            threshold: [0, 0.25, 0.5, 0.75, 1],
+        });
+
+        for (const id of linkByTarget.keys()) {
+            const section = document.getElementById(id);
+            if (section) io.observe(section);
+        }
+    }
+
     /* ---------- Bootstrap ---------- */
     document.addEventListener("DOMContentLoaded", () => {
         initReveal();
@@ -272,5 +320,6 @@
         initClipboard();
         initDropzone();
         initAnchors();
+        initToc();
     });
 })();

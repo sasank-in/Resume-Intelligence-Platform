@@ -133,6 +133,12 @@ def test_ats_suggestions_requires_prior_analysis(client):
 
 # ---------- Screening router presence ----------
 
+def test_metrics_disabled_by_default(client):
+    # In the test env, METRICS_ENABLED is not set → endpoint should not exist
+    r = client.get("/metrics")
+    assert r.status_code == 404
+
+
 def test_screening_template_endpoint_exists(client):
     r = client.get("/screening/job-requirements-template")
     # Should return a 200 with a sample template, OR 405/404 if router not wired.

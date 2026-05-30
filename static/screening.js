@@ -2,25 +2,81 @@
 
 let selectedFiles = [];
 
-function handleFileSelection() {
-    const fileInput = document.getElementById('resumeFiles');
-    selectedFiles = Array.from(fileInput.files);
-    
+function formatBytes(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function renderFileList() {
+    const esc = (window.UI && window.UI.escape) || (s => String(s == null ? '' : s));
     const fileList = document.getElementById('fileList');
     const screenBtn = document.getElementById('screenBtn');
-    
-    if (selectedFiles.length > 0) {
-        fileList.style.display = 'block';
-        fileList.innerHTML = `
-            <strong>${selectedFiles.length} file(s) selected:</strong><br>
-            ${selectedFiles.map(f => f.name).join('<br>')}
-        `;
-        screenBtn.disabled = false;
-    } else {
+
+    if (selectedFiles.length === 0) {
         fileList.style.display = 'none';
+        fileList.innerHTML = '';
         screenBtn.disabled = true;
+        return;
+    }
+
+    fileList.style.display = 'flex';
+    fileList.className = 'file-list';
+    fileList.innerHTML = selectedFiles.map((f, i) => `
+        <div class="file-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gray-500); flex-shrink: 0;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <span class="file-item-name" title="${esc(f.name)}">${esc(f.name)}</span>
+            <span class="file-item-size">${formatBytes(f.size)}</span>
+            <button type="button" class="file-item-remove" data-index="${i}" aria-label="Remove ${esc(f.name)}">×</button>
+        </div>
+    `).join('');
+    screenBtn.disabled = false;
+}
+
+function addFiles(incoming) {
+    const accepted = [];
+    const rejected = [];
+    for (const f of incoming) {
+        if (f.name.toLowerCase().endsWith('.pdf')) accepted.push(f);
+        else rejected.push(f.name);
+    }
+    if (rejected.length && window.UI) {
+        UI.toast(`Skipped ${rejected.length} non-PDF file(s)`, { type: 'info' });
+    }
+    // De-dupe by name+size
+    const seen = new Set(selectedFiles.map(f => `${f.name}:${f.size}`));
+    for (const f of accepted) {
+        const key = `${f.name}:${f.size}`;
+        if (!seen.has(key)) { selectedFiles.push(f); seen.add(key); }
+    }
+    renderFileList();
+}
+
+function removeFileAt(index) {
+    if (index >= 0 && index < selectedFiles.length) {
+        selectedFiles.splice(index, 1);
+        renderFileList();
     }
 }
+
+function handleFileSelection() {
+    const fileInput = document.getElementById('resumeFiles');
+    addFiles(Array.from(fileInput.files));
+    // Reset native input so re-picking the same file fires `change`
+    fileInput.value = '';
+}
+
+// Delegated click handler for per-file remove buttons
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.file-item-remove');
+    if (btn) {
+        const idx = parseInt(btn.getAttribute('data-index'), 10);
+        if (!isNaN(idx)) removeFileAt(idx);
+    }
+});
 
 function getJobRequirements() {
     const requiredSkills = document.getElementById('requiredSkills').value
@@ -82,10 +138,14 @@ async function screenResumes() {
         selectedFiles.forEach(file => formData.append('files', file));
         formData.append('job_requirements', JSON.stringify(jobRequirements));
 
-        const response = await fetch('/screening/screen-batch', {
+        const fetchPromise = fetch('/screening/screen-batch', {
             method: 'POST',
             body: formData
         });
+        const response = await (window.UI ? UI.withSlowToast(fetchPromise,
+            `Still screening ${total} resume(s) — this can take 30–90 s for large batches.`,
+            { delay: 6000 }
+        ) : fetchPromise);
 
         const data = await response.json();
 
@@ -219,33 +279,47 @@ function loadTemplate() {
         });
 }
 
-// Drag and drop functionality
-const uploadArea = document.getElementById('uploadArea');
-
-uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.style.borderColor = 'var(--primary)';
-    uploadArea.style.background = 'white';
-});
-
-uploadArea.addEventListener('dragleave', (e) => {
-    e.preventDefault();
-    uploadArea.style.borderColor = 'var(--gray-300)';
-    uploadArea.style.background = 'var(--gray-50)';
-});
-
-uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.style.borderColor = 'var(--gray-300)';
-    uploadArea.style.background = 'var(--gray-50)';
-    
-    const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.pdf'));
-    
-    if (files.length > 0) {
-        const fileInput = document.getElementById('resumeFiles');
-        const dataTransfer = new DataTransfer();
-        files.forEach(file => dataTransfer.items.add(file));
-        fileInput.files = dataTransfer.files;
-        handleFileSelection();
+// Whole-page drop overlay — drag a PDF anywhere on the screening page
+(function initDropOverlay() {
+    let dragCounter = 0;
+    let overlay = document.getElementById('screeningDropzone');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'screeningDropzone';
+        overlay.className = 'dropzone-overlay';
+        overlay.innerHTML = `
+            <div style="text-align: center;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display: block; margin: 0 auto 0.75rem;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Drop PDF resumes anywhere to upload
+            </div>
+        `;
+        document.body.appendChild(overlay);
     }
-});
+    const isFileDrag = (e) => Array.from(e.dataTransfer?.types || []).includes('Files');
+
+    window.addEventListener('dragenter', (e) => {
+        if (!isFileDrag(e)) return;
+        dragCounter++;
+        overlay.classList.add('is-active');
+    });
+    window.addEventListener('dragover', (e) => {
+        if (!isFileDrag(e)) return;
+        e.preventDefault();
+    });
+    window.addEventListener('dragleave', () => {
+        dragCounter = Math.max(0, dragCounter - 1);
+        if (dragCounter === 0) overlay.classList.remove('is-active');
+    });
+    window.addEventListener('drop', (e) => {
+        if (!isFileDrag(e)) return;
+        e.preventDefault();
+        dragCounter = 0;
+        overlay.classList.remove('is-active');
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length) addFiles(files);
+    });
+})();

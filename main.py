@@ -333,10 +333,13 @@ async def _static(request: Request, filename: str):
             )
 
     # Disk fallback (dev mode, or requests for the unhashed original name).
+    # In dev: explicitly tell the browser NOT to cache, so file edits always
+    # show on the next reload without forcing the user to clear cache.
     from fastapi.responses import FileResponse
     path = Path(STATIC_DIR) / filename
     if path.is_file():
-        return FileResponse(path)
+        headers = {"Cache-Control": "no-cache, no-store, must-revalidate"} if not IS_PROD else {}
+        return FileResponse(path, headers=headers)
     return JSONResponse({"detail": "not found"}, status_code=404)
 
 

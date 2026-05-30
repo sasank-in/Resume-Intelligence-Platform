@@ -7,7 +7,6 @@
     <title>Resume Analysis Results - Resume Analyzer Pro</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/motion.css">
-    <link rel="stylesheet" href="/static/theme.css">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -167,13 +166,17 @@
                 </div>
             </section>
 
-            <!-- Skills Section -->
+            <!-- Skills Section (collapsible) -->
             <section class="section" id="skillsSection" style="display: none;">
-                <div class="section-header" data-eyebrow="Capabilities">
-                    <h2 class="section-title">Skills & expertise</h2>
-                    <p class="section-description">Technical and professional competencies extracted from your resume.</p>
-                </div>
-                <div class="skills-container" id="skillsGrid"></div>
+                <details class="collapsible-section">
+                    <summary>
+                        <span>Skills &amp; expertise <span class="summary-meta" id="skillsCount"></span></span>
+                    </summary>
+                    <div class="collapsible-body">
+                        <p class="section-description" style="margin-bottom: 1rem;">Technical and professional competencies extracted from your resume.</p>
+                        <div class="skills-container" id="skillsGrid"></div>
+                    </div>
+                </details>
             </section>
 
             <!-- Experience Section -->
@@ -185,13 +188,17 @@
                 <div class="timeline-modern" id="experienceTimeline"></div>
             </section>
 
-            <!-- Education Section -->
+            <!-- Education Section (collapsible) -->
             <section class="section" id="educationSection" style="display: none;">
-                <div class="section-header" data-eyebrow="Background">
-                    <h2 class="section-title">Education</h2>
-                    <p class="section-description">Academic background and qualifications.</p>
-                </div>
-                <div class="education-grid-modern" id="educationGrid"></div>
+                <details class="collapsible-section">
+                    <summary>
+                        <span>Education <span class="summary-meta" id="educationCount"></span></span>
+                    </summary>
+                    <div class="collapsible-body">
+                        <p class="section-description" style="margin-bottom: 1rem;">Academic background and qualifications.</p>
+                        <div class="education-grid-modern" id="educationGrid"></div>
+                    </div>
+                </details>
             </section>
 
             <!-- AI Analysis Section -->

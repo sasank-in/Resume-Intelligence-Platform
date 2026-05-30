@@ -7,7 +7,6 @@
     <title>Resume Analyzer Pro - AI Career Intelligence Platform</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/motion.css">
-    <link rel="stylesheet" href="/static/theme.css">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -40,34 +39,63 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
+    <!-- Hero + Upload (side-by-side on desktop, stacked on mobile) -->
+    <section class="hero" id="upload">
         <div class="hero-container">
-            <div class="hero-content">
-                <p class="hero-eyebrow">Resume Analyzer Pro</p>
-                <h1 class="hero-title">Analyze your resume with AI</h1>
-                <p class="hero-subtitle">Upload a PDF and get a structured profile, ATS score, and matched job recommendations in seconds.</p>
-                <div class="hero-features">
-                    <div class="feature-badge">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>Resume Analysis</span>
+            <div class="hero-with-upload">
+                <div class="hero-content">
+                    <p class="hero-eyebrow">Resume Analyzer Pro</p>
+                    <h1 class="hero-title">Your resume, decoded by AI</h1>
+                    <p class="hero-subtitle">Drop a PDF and get a structured profile, ATS compatibility score, and AI-matched job recommendations in seconds.</p>
+                    <div class="hero-features">
+                        <div class="feature-badge">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Private — sessions expire in 1h</span>
+                        </div>
+                        <div class="feature-badge">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>No account required</span>
+                        </div>
+                        <div class="feature-badge">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z"/>
+                                <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z"/>
+                                <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z"/>
+                            </svg>
+                            <span>Free analysis</span>
+                        </div>
                     </div>
-                    <div class="feature-badge">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                </div>
+
+                <!-- Upload Card -->
+                <div class="upload-card" data-reveal>
+                    <input type="file" id="resumeFile" accept=".pdf" hidden>
+                    <div class="upload-area" onclick="document.getElementById('resumeFile').click()">
+                        <svg class="upload-icon" width="40" height="40" viewBox="0 0 48 48" fill="none">
+                            <path d="M24 8v24M24 8l-8 8M24 8l8 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 32v4a4 4 0 004 4h24a4 4 0 004-4v-4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
                         </svg>
-                        <span>LinkedIn Integration</span>
+                        <h3 class="upload-title">Drop your resume here</h3>
+                        <p class="upload-subtitle">PDF up to 10 MB — text-based works best</p>
                     </div>
-                    <div class="feature-badge">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                            <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"/>
-                        </svg>
-                        <span>Job Matching</span>
+
+                    <div class="upload-actions">
+                        <button class="btn btn-primary btn-large" type="button" onclick="document.getElementById('resumeFile').click()">
+                            Choose file
+                        </button>
                     </div>
+
+                    <div class="upload-progress" id="uploadProgress" aria-hidden="true">
+                        <div class="upload-progress-bar"></div>
+                    </div>
+                    <div class="upload-status-line" id="uploadStatus" aria-live="polite"></div>
+
+                    <p id="fileName" class="file-name"></p>
                 </div>
             </div>
         </div>
@@ -76,52 +104,14 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="content-container">
-            
-            <!-- Upload Section -->
-            <section class="section" id="upload">
-                <div class="section-header" data-eyebrow="Step 1 — Upload">
-                    <h2 class="section-title">Analyze your resume in seconds</h2>
-                    <p class="section-description">Drop a PDF and our AI extracts skills, experience, and key insights instantly.</p>
-                </div>
-                
+
+            <!-- How It Works + Reassurance -->
+            <section class="section" id="features">
                 <div class="upload-with-features">
-                    <!-- Upload Card -->
-                    <div class="upload-card" data-reveal>
-                        <input type="file" id="resumeFile" accept=".pdf" hidden>
-                        <div class="upload-area" onclick="document.getElementById('resumeFile').click()">
-                            <svg class="upload-icon" width="48" height="48" viewBox="0 0 48 48" fill="none">
-                                <path d="M24 8v24M24 8l-8 8M24 8l8 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M8 32v4a4 4 0 004 4h24a4 4 0 004-4v-4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            </svg>
-                            <h3 class="upload-title">Drop your resume here or click to browse</h3>
-                            <p class="upload-subtitle">Supports PDF files up to 10MB • Text-based PDFs work best</p>
-                        </div>
-                        
-                        <div class="upload-actions">
-                            <button class="btn btn-primary btn-large" type="button" onclick="document.getElementById('resumeFile').click()">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                Choose File
-                            </button>
-                        </div>
-                        
-                        <div class="upload-tips">
-                            <small>💡 <strong>Tips:</strong> Use PDFs with selectable text (not scanned images) for best results</small>
-                        </div>
-
-                        <div class="upload-progress" id="uploadProgress" aria-hidden="true">
-                            <div class="upload-progress-bar"></div>
-                        </div>
-                        <div class="upload-status-line" id="uploadStatus" aria-live="polite"></div>
-
-                        <p id="fileName" class="file-name"></p>
-                    </div>
-
                     <!-- How It Works -->
                     <div class="how-it-works-card" data-reveal data-reveal-delay="1">
                         <h3 class="how-it-works-title">How it works</h3>
-                        <p class="how-it-works-description">Our AI-powered system analyzes your resume in three intelligent steps</p>
+                        <p class="how-it-works-description">Three steps from PDF to recommendations</p>
 
                         <div class="features-list">
                             <div class="feature-item" data-reveal data-reveal-delay="1">

@@ -16,11 +16,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadAnalysisData() {
     try {
-        const response = await fetch('/get-analysis', {
+        const req = fetch('/get-analysis', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ session_id: sessionId })
         });
+        const response = await (window.UI ? UI.withSlowToast(req,
+            "Generating your analysis — this typically takes 5–10 seconds.",
+            { delay: 4000 }
+        ) : req);
 
         const data = await response.json().catch(() => ({}));
 
@@ -106,6 +110,8 @@ function displayResumeData(data) {
             `<div class="skill-badge">${esc(skill)}</div>`
         ).join('');
         document.getElementById('skillsSection').style.display = 'block';
+        const countEl = document.getElementById('skillsCount');
+        if (countEl) countEl.textContent = `(${data.skills.length})`;
     }
 
     // Experience Timeline
@@ -140,6 +146,8 @@ function displayResumeData(data) {
             </div>
         `).join('');
         document.getElementById('educationSection').style.display = 'block';
+        const countEl = document.getElementById('educationCount');
+        if (countEl) countEl.textContent = `(${data.education.length})`;
     }
 }
 
@@ -596,11 +604,15 @@ async function getJobRecommendations() {
     contentEl.innerHTML = '<div class="loading"><div class="spinner"></div><p>Analyzing your profile and matching with jobs...</p></div>';
     
     try {
-        const response = await fetch('/recommend-jobs', {
+        const req = fetch('/recommend-jobs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ session_id: sessionId })
         });
+        const response = await (window.UI ? UI.withSlowToast(req,
+            "Generating recommendations — checking matches against your profile…",
+            { delay: 5000 }
+        ) : req);
         
         const data = await response.json();
         
@@ -762,10 +774,11 @@ async function checkATSCompatibility() {
         formData.append('target_role', targetRole);
         formData.append('ats_system', atsSystem);
         
-        const response = await fetch('/check-ats', {
-            method: 'POST',
-            body: formData
-        });
+        const req = fetch('/check-ats', { method: 'POST', body: formData });
+        const response = await (window.UI ? UI.withSlowToast(req,
+            "Running ATS compatibility analysis — this can take 10–15 s.",
+            { delay: 5000 }
+        ) : req);
         
         const data = await response.json();
         

@@ -247,11 +247,32 @@
         return out;
     }
 
+    /* ---------- Slow-call notifier ---------- */
+    // Wraps an async operation: if it doesn't resolve within `delay` ms,
+    // shows a persistent toast with the supplied message. Toast auto-dismisses
+    // when the promise settles. Useful for LLM round-trips that often
+    // take longer than users expect.
+    function withSlowToast(promise, msg, opts) {
+        const delay = (opts && opts.delay) || 5000;
+        let handle = null;
+        const timer = setTimeout(() => {
+            handle = toast(msg || "Still working — this can take a few seconds…", {
+                type: "info",
+                duration: 0,  // sticky
+            });
+        }, delay);
+        return promise.finally(() => {
+            clearTimeout(timer);
+            if (handle && handle.dismiss) handle.dismiss();
+        });
+    }
+
     /* ---------- Public API ---------- */
     window.UI = Object.freeze({
         toast,
         escape,
         html,
+        withSlowToast,
         setLoading(btn, loading) {
             if (!btn) return;
             if (loading) btn.setAttribute("data-loading", "true");
